@@ -1,3 +1,0 @@
-print("monke")
-
-print("sinsjab")
