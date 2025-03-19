@@ -1,8 +1,7 @@
 package main;
-
 public class Pet {
-    // Abstract class representing all pets, containing shared attributes like hunger, health, 
-    // happiness, and sleep.
-    // code goes here...
-    
+    public static void main(String[] args) {
+        System.out.println("Hello, Pet!");
+    }
 }
+
