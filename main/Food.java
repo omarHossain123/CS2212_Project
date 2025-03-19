@@ -1,3 +1,4 @@
+package main;
 class Food implements Item {
     private double item_price;
     private int number_item;

@@ -1,3 +1,4 @@
+package main;
 public interface Item{
     private double item_price;
     private int number_item;
