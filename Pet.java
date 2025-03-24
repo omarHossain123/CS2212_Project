@@ -9,13 +9,13 @@ public class Pet {
     private int hunger;
     private ImageIcon petImage;
 
-    public Pet(String name, String type, String imagePath) {
+    public Pet(String name, String type, int health, int happiness, int sleep, int hunger, String imagePath) {
         this.name = name;
         this.type = type;
-        this.health = 100;
-        this.happiness = 100;
-        this.sleep = 100;
-        this.hunger = 100;
+        this.health = health;
+        this.happiness = happiness;
+        this.sleep = sleep;
+        this.hunger = hunger;
         this.petImage = new ImageIcon(imagePath);
     }
 
@@ -27,25 +27,11 @@ public class Pet {
     public int getHunger() { return hunger; }
     public ImageIcon getPetImage() { return petImage; }
 
-    public void decreaseHealth(int amount) {
-        health = Math.max(0, health - amount);
-    }
-
-    public void decreaseHappiness(int amount) {
-        happiness = Math.max(0, happiness - amount);
-    }
-
-    public void decreaseSleep(int amount) {
-        sleep = Math.max(0, sleep - amount);
-    }
-
-    public void decreaseHunger(int amount) {
-        hunger = Math.max(0, hunger - amount);
-    }
-
-    public void increaseHappiness(int amount) {
-        happiness = Math.min(100, happiness + amount);
-    }
+    public void decreaseHealth(int amount) { health = Math.max(0, health - amount); }
+    public void decreaseHappiness(int amount) { happiness = Math.max(0, happiness - amount); }
+    public void decreaseSleep(int amount) { sleep = Math.max(0, sleep - amount); }
+    public void decreaseHunger(int amount) { hunger = Math.max(0, hunger - amount); }
+    public void increaseHappiness(int amount) { happiness = Math.min(100, happiness + amount); }
 
     public void feed() {
         hunger = Math.min(100, hunger + 20);
@@ -54,22 +40,20 @@ public class Pet {
 
     public void sleep() {
         sleep = 100;
-        happiness -= 5; // Slightly unhappy from sleeping
+        happiness = Math.max(0, happiness - 5);
     }
 
     public void play() {
         happiness = Math.min(100, happiness + 10);
-        hunger -= 10;
-        sleep -= 5;
+        hunger = Math.max(0, hunger - 10);
+        sleep = Math.max(0, sleep - 5);
     }
 
-    public boolean isDead() {
-        return health <= 0;
-    }
+    public boolean isDead() { return health <= 0; }
 
     @Override
     public String toString() {
-        return name + " the " + type + " (Health: " + health + ", Happiness: " + happiness + 
-               ", Sleep: " + sleep + ", Hunger: " + hunger + ")";
+        return "<html>" + name + " the " + type + "<br>Health: " + health + "<br>Happiness: " + happiness +
+               "<br>Sleep: " + sleep + "<br>Hunger: " + hunger + "</html>";
     }
 }
