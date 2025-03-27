@@ -8,7 +8,6 @@ import javax.swing.border.LineBorder;
 
 public class PetSelection {
     public static Pet selectedPet;
-    private static int totalPoints = 0; // Track total points to unlock final pet
     
     public static void selectPet() {
         // Create background image
