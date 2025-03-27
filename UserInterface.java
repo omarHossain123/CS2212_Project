@@ -1,5 +1,5 @@
-import javax.swing.JFrame;
-import javax.swing.JLabel;
+import java.awt.*;
+import javax.swing.*;
 
 public class UserInterface {
     public static void main(String[] args) {
