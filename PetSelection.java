@@ -1,15 +1,13 @@
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.util.function.Consumer;
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import javax.swing.border.*;
 
 public class PetSelection {
     public static Pet selectedPet;
     
-    public static void selectPet() {
+    public static void selectPet(Consumer<Pet> onPetSelected) {
         // Create background image
         String backgroundPath = "assets/images/uiElements/Pet_Selection2.png";
         ImageIcon backgroundImage = new ImageIcon(backgroundPath);
@@ -76,7 +74,12 @@ public class PetSelection {
             
             // Select Pet Button
             JButton selectButton = createStyledButton("Select Pet");
-            selectButton.addActionListener(e -> confirmPetSelection(pet, frame));
+            selectButton.addActionListener(e -> {
+                Pet updatedPet = promptForPetName(pet, frame);
+                if (updatedPet != null) {
+                    confirmPetSelection(updatedPet, frame, onPetSelected);
+                }
+            });
             
             // Add hover effect to blush the pet image
             MouseAdapter blushAdapter = new MouseAdapter() {
@@ -139,20 +142,43 @@ public class PetSelection {
         return button;
     }
     
+    // Method to prompt for pet name
+    private static Pet promptForPetName(Pet pet, JFrame parentFrame) {
+        String name = JOptionPane.showInputDialog(
+            parentFrame,
+            "What would you like to name your " + pet.getType() + "?",
+            "Name Your Pet",
+            JOptionPane.QUESTION_MESSAGE
+        );
+        
+        if (name != null && !name.trim().isEmpty()) {
+            pet.setName(name.trim());
+            return pet;
+        } else if (name != null) { // Empty name but not cancelled
+            JOptionPane.showMessageDialog(
+                parentFrame,
+                "Please enter a valid name for your pet.",
+                "Invalid Name",
+                JOptionPane.WARNING_MESSAGE
+            );
+            return promptForPetName(pet, parentFrame);
+        }
+        return null; // User cancelled
+    }
+    
     // Method to confirm pet selection
-    private static void confirmPetSelection(Pet pet, JFrame parentFrame) {
+    private static void confirmPetSelection(Pet pet, JFrame parentFrame, Consumer<Pet> onPetSelected) {
         int result = JOptionPane.showConfirmDialog(
             parentFrame, 
-            "Are you sure you want to select " + pet.getType() + "?", 
+            "Are you sure you want to select " + pet.getName() + " the " + pet.getType() + "?", 
             "Confirm Pet Selection", 
             JOptionPane.YES_NO_OPTION
         );
         
         if (result == JOptionPane.YES_OPTION) {
             selectedPet = pet;
-            // TODO: Add code to move to the next screen
-            // For now, just close the current frame
             parentFrame.dispose();
+            onPetSelected.accept(pet);
         }
     }
     
