@@ -75,7 +75,10 @@ public class Main_Menu extends JFrame {
         // Set action listeners
         jButton3.addActionListener(e -> new TutorialScreen().setVisible(true));
         jButton4.addActionListener(e -> new ParentalControls().setVisible(true));
-        jButton5.addActionListener(e -> System.exit(0));
+        jButton5.addActionListener(e -> {
+            // Use the safe exit method to ensure play statistics are recorded
+            UserInterface.safeExit();
+        });
         
         // Center each button
         jButton1.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -110,8 +113,14 @@ public class Main_Menu extends JFrame {
         // Set minimum size
         setMinimumSize(new Dimension(800, 600));
         
-        // Set default close operation
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        // Set default close operation to use our safe exit method
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                UserInterface.safeExit();
+            }
+        });
         
         // Add a component listener to handle resize events
         addComponentListener(new java.awt.event.ComponentAdapter() {
@@ -290,5 +299,4 @@ public class Main_Menu extends JFrame {
             g.drawImage(img, x, y, drawWidth, drawHeight, this);
         }
     }
-    
 }

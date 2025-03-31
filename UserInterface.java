@@ -6,10 +6,25 @@ public class UserInterface {
     private static Pet currentPet;
     private static final String SAVES_DIRECTORY = "saves";
     private static String currentSaveFile;
+    private static long sessionStartTime;
+    private static boolean isApplicationRunning = false;
 
     public static void main(String[] args) {
+        // Record session start time
+        sessionStartTime = System.currentTimeMillis();
+        isApplicationRunning = true;
+        
         // Create saves directory if it doesn't exist
         createSavesDirectory();
+        
+        // Add shutdown hook to record session statistics
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (isApplicationRunning) {
+                long sessionDuration = (System.currentTimeMillis() - sessionStartTime) / 1000; // Convert to seconds
+                ParentalControls.updatePlayStatistics(sessionDuration);
+                isApplicationRunning = false;
+            }
+        }));
         
         SwingUtilities.invokeLater(() -> {
             showMainMenu();
@@ -28,6 +43,12 @@ public class UserInterface {
         Main_Menu mainMenu = new Main_Menu();
 
         mainMenu.getStartNewGameButton().addActionListener(e -> {
+            // Check parental controls before starting game
+            if (!ParentalControls.isPlayingAllowed()) {
+                showTimeRestrictionMessage(mainMenu);
+                return;
+            }
+            
             mainMenu.dispose();
             PetSelection.selectPet(newPet -> {
                 currentPet = newPet;
@@ -55,6 +76,12 @@ public class UserInterface {
         });
 
         mainMenu.getContinueGameButton().addActionListener(e -> {
+            // Check parental controls before loading game
+            if (!ParentalControls.isPlayingAllowed()) {
+                showTimeRestrictionMessage(mainMenu);
+                return;
+            }
+            
             List<String> saveFiles = getSaveFiles();
             if (saveFiles.isEmpty()) {
                 JOptionPane.showMessageDialog(mainMenu,
@@ -93,6 +120,17 @@ public class UserInterface {
         });
 
         mainMenu.setVisible(true);
+    }
+    
+    /**
+     * Shows a message when play is restricted by parental controls
+     */
+    private static void showTimeRestrictionMessage(JFrame parent) {
+        JOptionPane.showMessageDialog(parent,
+            "You are not allowed to play at this time.\n" +
+            "Please try again during your allowed play time.",
+            "Time Restriction",
+            JOptionPane.WARNING_MESSAGE);
     }
 
     /**
@@ -149,7 +187,10 @@ public class UserInterface {
             if (files != null) {
                 for (File file : files) {
                     String name = file.getName();
-                    saveFiles.add(name.substring(0, name.length() - 4)); 
+                    // Exclude parental controls file from save files list
+                    if (!name.equals("parental_controls.dat")) {
+                        saveFiles.add(name.substring(0, name.length() - 4)); // Remove .dat extension
+                    }
                 }
             }
         }
@@ -218,5 +259,18 @@ public class UserInterface {
         } else {
             saveGame();
         }
+    }
+    
+    /**
+     * Called when the application is exiting properly
+     * Records the session statistics before shutdown
+     */
+    public static void safeExit() {
+        if (isApplicationRunning) {
+            long sessionDuration = (System.currentTimeMillis() - sessionStartTime) / 1000; // Convert to seconds
+            ParentalControls.updatePlayStatistics(sessionDuration);
+            isApplicationRunning = false;
+        }
+        System.exit(0);
     }
 }
