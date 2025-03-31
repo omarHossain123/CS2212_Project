@@ -123,24 +123,25 @@ import javax.swing.JComponent;
      }
  
      private void loadPetImage() {
-        //  String imagePath = Game.Path() + Game.petName() + Game.getState() + ".png";
-        String imagePath = "assets\\images\\petSprites\\default_idle.png"; // temporary path until game class is made
+        // Get the image path from the current pet
+        String imagePath = currentPet.getPetImage().getDescription();
+        
         try {
-             ImageIcon originalIcon = new ImageIcon(imagePath);
-             
-             // Scale the image to fit the JLabel dimensions (346x320 as per your code)
-             Image scaledImage = originalIcon.getImage().getScaledInstance(
-                 346, 
-                 320, 
-                 Image.SCALE_SMOOTH);
-                 
-             petImage.setIcon(new ImageIcon(scaledImage));
-         } catch (Exception e) {
-             System.err.println("Error loading pet image: " + imagePath);
-             petImage.setIcon(null); // Clear image if loading fails
-             petImage.setText("Pet Image Missing");
-         }
-     }
+            ImageIcon originalIcon = new ImageIcon(imagePath);
+            
+            // Scale the image to fit the JLabel dimensions (346x320 as per your code)
+            Image scaledImage = originalIcon.getImage().getScaledInstance(
+                346, 
+                320, 
+                Image.SCALE_SMOOTH);
+                
+            petImage.setIcon(new ImageIcon(scaledImage));
+        } catch (Exception e) {
+            System.err.println("Error loading pet image: " + imagePath);
+            petImage.setIcon(null); // Clear image if loading fails
+            petImage.setText("Pet Image Missing");
+        }
+    }
      
      /**
      * Sets up key bindings for the main game window. Specifically binds the ESC key
