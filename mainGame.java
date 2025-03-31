@@ -437,10 +437,11 @@
          // TODO add your handling code here:
      }//GEN-LAST:event_storeActionPerformed
  
-     private void inventoryActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inventoryActionPerformed
-         // TODO add your handling code here:
-     }//GEN-LAST:event_inventoryActionPerformed
- 
+     private void inventoryActionPerformed(java.awt.event.ActionEvent evt) {
+        InventoryGUI inventoryWindow = new InventoryGUI(currentPet.getName());
+        inventoryWindow.setVisible(true);
+    }
+    
      private void petChangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_petChangeActionPerformed
          // TODO add your handling code here:
      }//GEN-LAST:event_petChangeActionPerformed
