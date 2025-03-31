@@ -15,7 +15,8 @@
  import javax.swing.ActionMap;
  import javax.swing.ImageIcon;
  import javax.swing.InputMap;
- import javax.swing.JComponent;
+import javax.swing.JButton;
+import javax.swing.JComponent;
  import javax.swing.JProgressBar;
  import javax.swing.KeyStroke;
  import javax.swing.SwingUtilities;
@@ -43,7 +44,10 @@
 
         this.currentPet = selectedPet;
 
-         initComponents();
+        initComponents();
+
+        addSaveButton();
+
          
          // Set the frame size explicitly to match your panel
          this.setSize(1075, 680); // Width, Height (add extra for window decorations)
@@ -197,7 +201,20 @@
                  commandsActionPerformed(null);
              }
          };
- 
+        
+        // save game 
+        Action saveAction = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                UserInterface.saveCurrentGame();
+            }
+        };
+
+        // Ctrl+S tp save
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_DOWN_MASK), "saveAction");
+        actionMap.put("saveAction", saveAction);
+
+
          // Bind the ESC key to the action
          inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escAction");
          actionMap.put("escAction", escAction);
@@ -261,6 +278,8 @@
      @SuppressWarnings("unchecked")
      // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
      private void initComponents() {
+
+        
  
          jPanel1 = new javax.swing.JPanel();
          commands = new javax.swing.JButton();
@@ -412,6 +431,12 @@
  
          pack();
      }// </editor-fold>//GEN-END:initComponents
+
+    // save game 
+    private void saveGameButtonActionPerformed(java.awt.event.ActionEvent evt) {
+        UserInterface.saveCurrentGame();
+    }
+
  
      private void settingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsActionPerformed
          // TODO add your handling code here:
@@ -445,6 +470,22 @@
      private void petChangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_petChangeActionPerformed
          // TODO add your handling code here:
      }//GEN-LAST:event_petChangeActionPerformed
+
+     private void addSaveButton() {
+        JButton saveButton = new JButton();
+        saveButton.setIcon(new javax.swing.ImageIcon("assets\\images\\uiElements\\mainGameButtons\\save.png")); // Use a save icon
+        saveButton.setBorderPainted(false);
+        saveButton.setContentAreaFilled(false);
+        saveButton.setToolTipText("Save Game (Ctrl+S)");
+        saveButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                saveGameButtonActionPerformed(evt);
+            }
+    });
+
+    jPanel1.add(saveButton);
+    saveButton.setBounds(994, 70, 60, 60); // Position it below the settings button
+}
  
    
      // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -462,6 +503,7 @@
      private javax.swing.JButton settings;
      private javax.swing.JProgressBar sleepBar;
      private javax.swing.JButton store;
+     
      // End of variables declaration//GEN-END:variables
  }
  
