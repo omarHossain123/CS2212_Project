@@ -149,7 +149,7 @@ public class UserInterface {
             if (files != null) {
                 for (File file : files) {
                     String name = file.getName();
-                    saveFiles.add(name.substring(0, name.length() - 4)); // Remove .dat extension
+                    saveFiles.add(name.substring(0, name.length() - 4)); 
                 }
             }
         }

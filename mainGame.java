@@ -464,6 +464,10 @@ import javax.swing.JComponent;
  
      private void inventoryActionPerformed(java.awt.event.ActionEvent evt) {
         InventoryGUI inventoryWindow = new InventoryGUI(currentPet.getName());
+        // Set the default close operation to DISPOSE_ON_CLOSE instead of EXIT_ON_CLOSE
+        inventoryWindow.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        // Center inventory window relative to the main game window
+        inventoryWindow.setLocationRelativeTo(this);
         inventoryWindow.setVisible(true);
     }
     
