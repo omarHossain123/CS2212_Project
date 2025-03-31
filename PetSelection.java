@@ -9,7 +9,7 @@ public class PetSelection {
     
     public static void selectPet(Consumer<Pet> onPetSelected) {
         // Create background image
-        String backgroundPath = "assets/images/uiElements/Pet_Selection2.png";
+        String backgroundPath = "assets/images/uiElements/petback.png";
         ImageIcon backgroundImage = new ImageIcon(backgroundPath);
         
         JFrame frame = new JFrame("Select Your Pet");

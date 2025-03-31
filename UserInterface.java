@@ -1,6 +1,6 @@
 import java.awt.*;
-import javax.swing.*;
 import java.io.*;
+import javax.swing.*;
 
 public class UserInterface {
     private static Pet currentPet;
@@ -36,16 +36,7 @@ public class UserInterface {
             }
         });
         
-        mainMenu.getTutorialButton().addActionListener(e -> {
-            JOptionPane.showMessageDialog(mainMenu, 
-                "Welcome to the Virtual Pet Game!\n\n" +
-                "- Select a pet to care for\n" +
-                "- Feed, play with, and let your pet sleep\n" +
-                "- Keep your pet's stats balanced to keep it healthy\n" +
-                "- Your progress will be saved automatically",
-                "Tutorial", 
-                JOptionPane.INFORMATION_MESSAGE);
-        });
+        // Keep the existing Tutorial and Parental Controls connections
         
         mainMenu.setVisible(true);
     }

@@ -4,6 +4,7 @@ import javax.swing.*;
  * Main_Menu - Finalized Java Swing GUI main menu.
  */
 public class Main_Menu extends JFrame {
+
     public Main_Menu() {
         initComponents();
     }
@@ -22,32 +23,25 @@ public class Main_Menu extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Comic Sans MS", 1, 36));
-        jLabel1.setText("Virtual Pet Game");
+        jLabel1.setText("Title");
 
         jLabel2.setFont(new java.awt.Font("Comic Sans MS", 1, 12));
         jLabel2.setText("Created in Winter 2025 for CS2212 at Western University");
 
         jLabel3.setFont(new java.awt.Font("Comic Sans MS", 1, 12));
-        jLabel3.setText("By Group 15: Isa Alif, Omar Hossain, Humza Khan, Ahmed Sinjab, Jacob Tran");
+        jLabel3.setText("By Group 15: Isa Alif, Omar Hossain, Hamza Khan, Ahmed Sinjab, Jacob Tran");
 
         jButton1.setText("Start New Game");
-        // Button actions are now handled in UserInterface class
+        // Action listeners will be set by UserInterface
 
         jButton2.setText("Continue Game");
-        // Button actions are now handled in UserInterface class
+        // Action listeners will be set by UserInterface
 
         jButton3.setText("Tutorial");
-        // Button actions are now handled in UserInterface class
+        jButton3.addActionListener(e -> new TutorialScreen().setVisible(true));
 
         jButton4.setText("Parental Controls");
-        jButton4.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                "Parental controls allow you to set limits on game time\n" +
-                "and enable content filtering for younger players.\n\n" +
-                "This feature is coming soon!",
-                "Parental Controls",
-                JOptionPane.INFORMATION_MESSAGE);
-        });
+        jButton4.addActionListener(e -> new ParentalControls().setVisible(true));
 
         jButton5.setText("Exit");
         jButton5.addActionListener(e -> System.exit(0));
@@ -103,11 +97,9 @@ public class Main_Menu extends JFrame {
         );
 
         pack();
-        setLocationRelativeTo(null); // Center on screen
-        setTitle("Virtual Pet Game");
     }
 
-    // Getters for the buttons so UserInterface can add action listeners
+    // Getter methods to allow UserInterface to access these buttons
     public JButton getStartNewGameButton() {
         return jButton1;
     }
@@ -118,6 +110,14 @@ public class Main_Menu extends JFrame {
     
     public JButton getTutorialButton() {
         return jButton3;
+    }
+    
+    public JButton getParentalControlsButton() {
+        return jButton4;
+    }
+    
+    public JButton getExitButton() {
+        return jButton5;
     }
 
     private JButton jButton1;
