@@ -1,3 +1,6 @@
+package main;
+import Item;
+
 public class Toy implements Item {
     private double item_price;
     private int number_item;
