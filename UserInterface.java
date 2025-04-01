@@ -1,4 +1,5 @@
 import java.io.*;
+import java.time.LocalTime;
 import java.util.*;
 import javax.swing.*;
 
@@ -126,10 +127,23 @@ public class UserInterface {
      * Shows a message when play is restricted by parental controls
      */
     private static void showTimeRestrictionMessage(JFrame parent) {
+        // Load settings to show the allowed time range
+        ParentalControls.ParentalSettings settings = ParentalControls.loadSettingsStatic();
+        String timeRange = "";
+        
+        if (settings != null) {
+            LocalTime startTime = LocalTime.of(settings.startTimeHour, settings.startTimeMinute);
+            LocalTime endTime = LocalTime.of(settings.endTimeHour, settings.endTimeMinute);
+            timeRange = startTime.format(ParentalControls.TIME_FORMATTER) + 
+                    " to " + 
+                    endTime.format(ParentalControls.TIME_FORMATTER);
+        }
+        
         JOptionPane.showMessageDialog(parent,
-            "You are not allowed to play at this time.\n" +
+            "Outside of allowed play time hours.\n" +
+            "You can only play during the hours: " + timeRange + "\n" +
             "Please try again during your allowed play time.",
-            "Time Restriction",
+            "Play Time Restriction",
             JOptionPane.WARNING_MESSAGE);
     }
 

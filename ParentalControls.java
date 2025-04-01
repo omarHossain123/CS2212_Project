@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.RoundRectangle2D;
 import java.io.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -8,10 +9,19 @@ import javax.swing.*;
 
 /**
  * ParentalControls - Password screen followed by controls/settings screen.
- * Includes time limitations and gameplay statistics.
+ * Includes allowed play time hours and gameplay statistics.
+ * Styled to match the main menu and tutorial screens.
  */
-public class ParentalControls extends JFrame {
+public class ParentalControls extends JDialog {
 
+    // Color scheme matching other screens
+    private final Color TITLE_COLOR = new Color(75, 91, 22); // Dark green
+    private final Color TEXT_COLOR = new Color(58, 71, 15);  // Darker green for content
+    private final Color BUTTON_TEXT = new Color(70, 86, 20); // Dark green
+    private final Color BUTTON_BORDER = new Color(139, 87, 42); // Brown color for button borders
+    private final Color BUTTON_BACKGROUND = new Color(255, 255, 240, 220); // Slightly transparent cream
+    private final Color CONTENT_BG = new Color(255, 255, 240, 200); // Semi-transparent background
+    
     private CardLayout cardLayout;
     private JPanel mainPanel;
     private static final String PASSWORD = "HelloWorld123$";
@@ -29,26 +39,38 @@ public class ParentalControls extends JFrame {
     private JTextField endTimeField;
     private JLabel totalPlayTimeLabel;
     private JLabel avgPlayTimeLabel;
+    private JLabel sessionsLabel;
     
     private static final String CONTROLS_FILE = "saves/parental_controls.dat";
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+    public static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     public ParentalControls() {
-        setTitle("Parental Controls");
-        setSize(600, 400);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this(null);
+    }
+
+    public ParentalControls(JFrame parent) {
+        super(parent, "Parental Controls", true); // true makes it modal
+        setSize(700, 500);
+        setLocationRelativeTo(parent);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setUndecorated(true); // Remove window decorations for popup feel
+        
+        // Create custom shaped window with rounded corners
+        setShape(new RoundRectangle2D.Double(0, 0, 700, 500, 20, 20));
 
         // Load existing settings
         loadSettings();
 
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
+        mainPanel.setLayout(cardLayout);
 
+        // Create and add panels
         mainPanel.add(createPasswordPanel(), "password");
         mainPanel.add(createSettingsPanel(), "settings");
 
-        add(mainPanel);
+        // Set content pane
+        setContentPane(mainPanel);
         cardLayout.show(mainPanel, "password");
         
         // Add window listener to save settings on close
@@ -61,86 +83,217 @@ public class ParentalControls extends JFrame {
     }
 
     private JPanel createPasswordPanel() {
-        JPanel panel = new JPanel(null);
+        // Create custom background panel
+        JPanel panel = new PasswordBackgroundPanel();
+        panel.setLayout(null);
 
-        JLabel label = new JLabel("Password:");
-        label.setBounds(150, 100, 80, 30);
+        // Title label
+        JLabel titleLabel = new JLabel("Parental Controls", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 36));
+        titleLabel.setForeground(TITLE_COLOR);
+        titleLabel.setBounds(0, 50, 700, 50);
+        panel.add(titleLabel);
+        
+        // Subtitle
+        JLabel subtitleLabel = new JLabel("Please enter password to continue", SwingConstants.CENTER);
+        subtitleLabel.setFont(new Font("Comic Sans MS", Font.ITALIC, 16));
+        subtitleLabel.setForeground(TEXT_COLOR);
+        subtitleLabel.setBounds(0, 100, 700, 30);
+        panel.add(subtitleLabel);
+
+        // Create content panel with styled background
+        JPanel contentPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Fill with semi-transparent background
+                g2.setColor(CONTENT_BG);
+                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 15, 15));
+                
+                // Draw border
+                g2.setColor(BUTTON_BORDER);
+                g2.setStroke(new BasicStroke(2));
+                g2.draw(new RoundRectangle2D.Double(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
+                
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        contentPanel.setOpaque(false);
+        contentPanel.setLayout(null);
+        contentPanel.setBounds(150, 150, 400, 200);
+        panel.add(contentPanel);
+
+        JLabel passwordLabel = new JLabel("Password:");
+        passwordLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 16));
+        passwordLabel.setForeground(TEXT_COLOR);
+        passwordLabel.setBounds(50, 60, 100, 30);
+        contentPanel.add(passwordLabel);
+        
         JPasswordField passwordField = new JPasswordField();
-        passwordField.setBounds(230, 100, 200, 30);
+        passwordField.setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
+        passwordField.setBounds(150, 60, 200, 30);
+        contentPanel.add(passwordField);
 
-        JButton exitButton = new JButton("Exit");
-        exitButton.setBounds(230, 150, 80, 30);
+        // Create styled buttons
+        JButton exitButton = createStyledButton("Exit", 100);
+        exitButton.setBounds(100, 130, 100, 40);
         exitButton.addActionListener(e -> dispose());
+        contentPanel.add(exitButton);
 
-        JButton confirmButton = new JButton("Confirm");
-        confirmButton.setBounds(320, 150, 100, 30);
+        JButton confirmButton = createStyledButton("Confirm", 100);
+        confirmButton.setBounds(220, 130, 100, 40);
         confirmButton.addActionListener(e -> {
             String enteredPassword = new String(passwordField.getPassword());
             if (enteredPassword.equals(PASSWORD)) {
                 cardLayout.show(mainPanel, "settings");
             } else {
-                JOptionPane.showMessageDialog(this, "Incorrect Password", "Access Denied", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, 
+                    "Incorrect Password", 
+                    "Access Denied", 
+                    JOptionPane.ERROR_MESSAGE);
                 passwordField.setText("");
             }
         });
-
-        panel.add(label);
-        panel.add(passwordField);
-        panel.add(exitButton);
-        panel.add(confirmButton);
+        contentPanel.add(confirmButton);
 
         return panel;
     }
 
     private JPanel createSettingsPanel() {
-        JPanel panel = new JPanel(null);
+        JPanel panel = new SettingsBackgroundPanel();
+        panel.setLayout(null);
 
-        JLabel title = new JLabel("Parental Controls");
-        title.setFont(new Font("Arial", Font.BOLD, 20));
-        title.setBounds(30, 10, 200, 30);
+        // Title
+        JLabel title = new JLabel("Parental Controls", SwingConstants.CENTER);
+        title.setFont(new Font("Comic Sans MS", Font.BOLD, 36));
+        title.setForeground(TITLE_COLOR);
+        title.setBounds(0, 20, 700, 40);
+        panel.add(title);
+
+        // Create content panel with custom styling
+        JPanel contentPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Fill with semi-transparent background
+                g2.setColor(CONTENT_BG);
+                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 15, 15));
+                
+                // Draw border
+                g2.setColor(BUTTON_BORDER);
+                g2.setStroke(new BasicStroke(2));
+                g2.draw(new RoundRectangle2D.Double(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
+                
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        contentPanel.setOpaque(false);
+        contentPanel.setLayout(null);
+        contentPanel.setBounds(50, 80, 620, 380);
+        panel.add(contentPanel);
 
         // Time limitations section
-        JLabel timeLimitLabel = new JLabel("Time Limitations:");
-        timeLimitLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        timeLimitLabel.setBounds(30, 50, 150, 20);
+        JLabel timeLimitLabel = new JLabel("Allowed Play Time Hours:");
+        timeLimitLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 18));
+        timeLimitLabel.setForeground(TEXT_COLOR);
+        timeLimitLabel.setBounds(30, 20, 250, 25);
+        contentPanel.add(timeLimitLabel);
 
-        toggleLimit = new JCheckBox("Enable Time Limitations");
-        toggleLimit.setBounds(30, 75, 200, 20);
+        toggleLimit = new JCheckBox("Enable Play Time Restrictions");
+        toggleLimit.setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
+        toggleLimit.setForeground(TEXT_COLOR);
+        toggleLimit.setOpaque(false);
+        toggleLimit.setBounds(30, 50, 250, 25);
         toggleLimit.setSelected(timeLimitEnabled);
+        contentPanel.add(toggleLimit);
 
-        JLabel fromLabel = new JLabel("From:");
-        fromLabel.setBounds(30, 100, 50, 25);
+        JLabel fromLabel = new JLabel("Allow play from:");
+        fromLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
+        fromLabel.setForeground(TEXT_COLOR);
+        fromLabel.setBounds(30, 80, 110, 25);
+        contentPanel.add(fromLabel);
+        
         startTimeField = new JTextField(startTime.format(TIME_FORMATTER));
-        startTimeField.setBounds(80, 100, 60, 25);
+        startTimeField.setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
+        startTimeField.setBounds(140, 80, 60, 25);
+        contentPanel.add(startTimeField);
 
-        JLabel toLabel = new JLabel("To:");
-        toLabel.setBounds(150, 100, 30, 25);
+        JLabel toLabel = new JLabel("to:");
+        toLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
+        toLabel.setForeground(TEXT_COLOR);
+        toLabel.setBounds(210, 80, 30, 25);
+        contentPanel.add(toLabel);
+        
         endTimeField = new JTextField(endTime.format(TIME_FORMATTER));
-        endTimeField.setBounds(180, 100, 60, 25);
+        endTimeField.setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
+        endTimeField.setBounds(240, 80, 60, 25);
+        contentPanel.add(endTimeField);
         
         JLabel timeFormatLabel = new JLabel("(Format: HH:mm, 24-hour)");
-        timeFormatLabel.setBounds(250, 100, 180, 25);
+        timeFormatLabel.setFont(new Font("Comic Sans MS", Font.ITALIC, 12));
+        timeFormatLabel.setForeground(TEXT_COLOR);
+        timeFormatLabel.setBounds(310, 80, 180, 25);
+        contentPanel.add(timeFormatLabel);
+        
+        // Add a clarification label
+        JLabel clarificationLabel = new JLabel("Child can only play during these hours when enabled");
+        clarificationLabel.setFont(new Font("Comic Sans MS", Font.ITALIC, 12));
+        clarificationLabel.setForeground(TEXT_COLOR);
+        clarificationLabel.setBounds(30, 110, 350, 20);
+        contentPanel.add(clarificationLabel);
 
         // Statistics section
         JLabel statsLabel = new JLabel("Play Statistics:");
-        statsLabel.setFont(new Font("Arial", Font.BOLD, 14));
-        statsLabel.setBounds(30, 140, 150, 20);
+        statsLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 18));
+        statsLabel.setForeground(TEXT_COLOR);
+        statsLabel.setBounds(30, 150, 150, 25);
+        contentPanel.add(statsLabel);
 
-        avgPlayTimeLabel = new JLabel(formatTime(averagePlayTime));
-        avgPlayTimeLabel.setBounds(30, 165, 120, 25);
-        JLabel avgDesc = new JLabel("Average Time Per Session");
-        avgDesc.setBounds(160, 165, 200, 25);
-
-        totalPlayTimeLabel = new JLabel(formatTime(totalPlayTime));
-        totalPlayTimeLabel.setBounds(30, 195, 120, 25);
-        JLabel totalDesc = new JLabel("Total Time Played");
-        totalDesc.setBounds(160, 195, 200, 25);
+        JLabel avgLabel = new JLabel("Average Time Per Session:");
+        avgLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
+        avgLabel.setForeground(TEXT_COLOR);
+        avgLabel.setBounds(30, 180, 200, 25);
+        contentPanel.add(avgLabel);
         
-        JLabel sessionsLabel = new JLabel("Sessions: " + sessionsCount);
-        sessionsLabel.setBounds(30, 225, 200, 25);
+        avgPlayTimeLabel = new JLabel(formatTime(averagePlayTime));
+        avgPlayTimeLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 14));
+        avgPlayTimeLabel.setForeground(TEXT_COLOR);
+        avgPlayTimeLabel.setBounds(230, 180, 150, 25);
+        contentPanel.add(avgPlayTimeLabel);
 
-        JButton resetStatsButton = new JButton("Reset Statistics");
-        resetStatsButton.setBounds(30, 255, 150, 30);
+        JLabel totalLabel = new JLabel("Total Time Played:");
+        totalLabel.setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
+        totalLabel.setForeground(TEXT_COLOR);
+        totalLabel.setBounds(30, 210, 200, 25);
+        contentPanel.add(totalLabel);
+        
+        totalPlayTimeLabel = new JLabel(formatTime(totalPlayTime));
+        totalPlayTimeLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 14));
+        totalPlayTimeLabel.setForeground(TEXT_COLOR);
+        totalPlayTimeLabel.setBounds(230, 210, 150, 25);
+        contentPanel.add(totalPlayTimeLabel);
+        
+        JLabel sessionsLabelText = new JLabel("Number of Play Sessions:");
+        sessionsLabelText.setFont(new Font("Comic Sans MS", Font.PLAIN, 14));
+        sessionsLabelText.setForeground(TEXT_COLOR);
+        sessionsLabelText.setBounds(30, 240, 200, 25);
+        contentPanel.add(sessionsLabelText);
+        
+        sessionsLabel = new JLabel(String.valueOf(sessionsCount));
+        sessionsLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 14));
+        sessionsLabel.setForeground(TEXT_COLOR);
+        sessionsLabel.setBounds(230, 240, 150, 25);
+        contentPanel.add(sessionsLabel);
+
+        // Button section - creating styled buttons
+        JButton resetStatsButton = createStyledButton("Reset Statistics", 150);
+        resetStatsButton.setBounds(30, 290, 150, 40);
         resetStatsButton.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this, 
                 "Are you sure you want to reset all play statistics?", 
@@ -155,59 +308,107 @@ public class ParentalControls extends JFrame {
                 saveSettings();
             }
         });
+        contentPanel.add(resetStatsButton);
 
-        JButton reviveButton = new JButton("Revive Pet");
-        reviveButton.setBounds(30, 295, 130, 30);
+        JButton reviveButton = createStyledButton("Revive Pet", 130);
+        reviveButton.setBounds(200, 290, 130, 40);
         reviveButton.addActionListener(e -> {
             // Implement pet revival logic here
-            JOptionPane.showMessageDialog(this, "Pet revival feature not yet implemented", 
-                "Feature Unavailable", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, 
+                "Pet revival feature not yet implemented", 
+                "Feature Unavailable", 
+                JOptionPane.INFORMATION_MESSAGE);
         });
+        contentPanel.add(reviveButton);
 
-        JButton saveButton = new JButton("Save Changes");
-        saveButton.setBounds(190, 295, 130, 30);
+        JButton saveButton = createStyledButton("Save Settings", 150);
+        saveButton.setBounds(350, 290, 150, 40);
         saveButton.addActionListener(e -> {
             if (validateAndSaveTimeSettings()) {
                 saveSettings();
-                JOptionPane.showMessageDialog(this, "Settings saved successfully!", 
-                    "Settings Saved", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, 
+                    "Play time settings saved successfully!", 
+                    "Settings Saved", 
+                    JOptionPane.INFORMATION_MESSAGE);
             }
         });
+        contentPanel.add(saveButton);
 
-        JButton exitButton = new JButton("Exit");
-        exitButton.setBounds(350, 295, 100, 30);
+        JButton exitButton = createStyledButton("Exit", 80);
+        exitButton.setBounds(520, 290, 80, 40);
         exitButton.addActionListener(e -> {
             if (validateAndSaveTimeSettings()) {
                 saveSettings();
                 dispose();
             }
         });
-
-        JLabel imagePlaceholder = new JLabel();
-        imagePlaceholder.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-        imagePlaceholder.setBounds(400, 50, 170, 170);
-
-        panel.add(title);
-        panel.add(timeLimitLabel);
-        panel.add(toggleLimit);
-        panel.add(fromLabel);
-        panel.add(startTimeField);
-        panel.add(toLabel);
-        panel.add(endTimeField);
-        panel.add(timeFormatLabel);
-        panel.add(statsLabel);
-        panel.add(avgPlayTimeLabel);
-        panel.add(avgDesc);
-        panel.add(totalPlayTimeLabel);
-        panel.add(totalDesc);
-        panel.add(sessionsLabel);
-        panel.add(resetStatsButton);
-        panel.add(reviveButton);
-        panel.add(saveButton);
-        panel.add(exitButton);
-        panel.add(imagePlaceholder);
+        contentPanel.add(exitButton);
 
         return panel;
+    }
+    
+    /**
+     * Creates a styled button that matches the rest of the application
+     */
+    private JButton createStyledButton(String text, int width) {
+        JButton button = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                
+                // Create gradient background
+                GradientPaint gp = new GradientPaint(
+                    0, 0, new Color(255, 255, 240, 220), 
+                    0, getHeight(), new Color(235, 235, 210, 220)
+                );
+                g2.setPaint(gp);
+                
+                // Draw rounded rectangle for button
+                g2.fill(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 15, 15));
+                
+                // Draw border
+                g2.setColor(BUTTON_BORDER);
+                g2.setStroke(new BasicStroke(2));
+                g2.draw(new RoundRectangle2D.Double(0, 0, getWidth() - 1, getHeight() - 1, 15, 15));
+                
+                g2.dispose();
+                
+                // Let UI delegate handle the text
+                super.paintComponent(g);
+            }
+        };
+        
+        // Make button transparent so our custom painting shows
+        button.setContentAreaFilled(false);
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
+        button.setOpaque(false);
+        
+        // Style the text
+        button.setFont(new Font("Comic Sans MS", Font.BOLD, 14));
+        button.setForeground(BUTTON_TEXT);
+        
+        // Set the button size
+        button.setPreferredSize(new Dimension(width, 40));
+        button.setMaximumSize(new Dimension(width, 40));
+        
+        // Add hover effect
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                Font currentFont = button.getFont();
+                button.setFont(new Font(currentFont.getName(), Font.BOLD, currentFont.getSize() + 1));
+                button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            }
+            
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                Font currentFont = button.getFont();
+                button.setFont(new Font(currentFont.getName(), Font.BOLD, currentFont.getSize() - 1));
+                button.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+            }
+        });
+        
+        return button;
     }
     
     /**
@@ -252,6 +453,7 @@ public class ParentalControls extends JFrame {
     private void updateStatisticsLabels() {
         totalPlayTimeLabel.setText(formatTime(totalPlayTime));
         avgPlayTimeLabel.setText(formatTime(averagePlayTime));
+        sessionsLabel.setText(String.valueOf(sessionsCount));
     }
     
     /**
@@ -328,26 +530,30 @@ public class ParentalControls extends JFrame {
             return true;
         }
         
-        // Check if current time is within allowed range
+        // Get current time
         LocalTime currentTime = LocalTime.now();
         LocalTime startTime = LocalTime.of(settings.startTimeHour, settings.startTimeMinute);
         LocalTime endTime = LocalTime.of(settings.endTimeHour, settings.endTimeMinute);
         
+        boolean isAllowed;
+        
         // Handle the case where end time is before start time (overnight)
         if (endTime.isBefore(startTime)) {
-            // Allowed if current time is after start time OR before end time
-            return !currentTime.isBefore(startTime) || !currentTime.isAfter(endTime);
+            // Allowed if current time is after or equal to start time OR before or equal to end time
+            isAllowed = !currentTime.isBefore(startTime) || !currentTime.isAfter(endTime);
         } else {
-            // Allowed if current time is between start and end time
-            return !currentTime.isBefore(startTime) && !currentTime.isAfter(endTime);
+            // Allowed if current time is between start and end time (inclusive)
+            isAllowed = !currentTime.isBefore(startTime) && !currentTime.isAfter(endTime);
         }
+        
+        return isAllowed;
     }
     
     /**
      * Static method to load settings without creating a ParentalControls instance
      * @return ParentalSettings object or null if not found
      */
-    private static ParentalSettings loadSettingsStatic() {
+    public static ParentalSettings loadSettingsStatic() {
         File file = new File(CONTROLS_FILE);
         if (!file.exists()) {
             return null;
@@ -399,6 +605,140 @@ public class ParentalControls extends JFrame {
             oos.writeObject(settings);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Utility method to check if parental control settings are correctly set
+     * This can be called from UserInterface to verify settings
+     */
+    public static void checkSettings() {
+        ParentalSettings settings = loadSettingsStatic();
+        
+        if (settings == null) {
+            System.out.println("No parental control settings found.");
+            return;
+        }
+        
+        LocalTime currentTime = LocalTime.now();
+        LocalTime startTime = LocalTime.of(settings.startTimeHour, settings.startTimeMinute);
+        LocalTime endTime = LocalTime.of(settings.endTimeHour, settings.endTimeMinute);
+        
+        System.out.println("===== PARENTAL CONTROL SETTINGS =====");
+        System.out.println("Current Time: " + currentTime.format(TIME_FORMATTER));
+        System.out.println("Time Limit Enabled: " + settings.timeLimitEnabled);
+        System.out.println("Allowed Time Range: " + startTime.format(TIME_FORMATTER) + 
+                           " to " + endTime.format(TIME_FORMATTER));
+        
+        // Check if playing would be allowed with current settings
+        boolean wouldBeAllowed;
+        
+        if (endTime.isBefore(startTime)) {
+            wouldBeAllowed = !currentTime.isBefore(startTime) || !currentTime.isAfter(endTime);
+            System.out.println("Overnight case detected");
+        } else {
+            wouldBeAllowed = !currentTime.isBefore(startTime) && !currentTime.isAfter(endTime);
+            System.out.println("Normal case detected");
+        }
+        
+        System.out.println("Play should be " + (wouldBeAllowed ? "ALLOWED" : "BLOCKED") + 
+                         " based on current time");
+        System.out.println("Actual result from isPlayingAllowed(): " + isPlayingAllowed());
+        System.out.println("======================================");
+    }
+
+    /**
+     * Background panel for the password screen
+     */
+    private class PasswordBackgroundPanel extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            
+            Graphics2D g2d = (Graphics2D) g.create();
+            
+            // Create a gradient background that matches the nature theme
+            GradientPaint gp = new GradientPaint(
+                0, 0, new Color(180, 210, 140), // Light green
+                0, getHeight(), new Color(120, 160, 90) // Darker green
+            );
+            
+            g2d.setPaint(gp);
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+            
+            // Draw some simple nature elements
+            // Grass on bottom
+            g2d.setColor(new Color(100, 140, 70));
+            for (int i = 0; i < getWidth(); i += 20) {
+                int height = 5 + (int)(Math.random() * 10);
+                g2d.fillRect(i, getHeight() - height, 10, height);
+            }
+            
+            // Clock in corner
+            g2d.setColor(new Color(255, 220, 130, 120));
+            g2d.fillOval(-50, -50, 150, 150);
+            
+            // Subtle cloud shapes
+            g2d.setColor(new Color(255, 255, 255, 40));
+            g2d.fillOval(500, 50, 150, 60);
+            g2d.fillOval(450, 40, 100, 50);
+            g2d.fillOval(520, 30, 120, 70);
+            
+            g2d.dispose();
+        }
+    }
+    
+    /**
+     * Background panel for the settings screen
+     */
+    private class SettingsBackgroundPanel extends JPanel {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            
+            Graphics2D g2d = (Graphics2D) g.create();
+            
+            // Create a gradient background that matches the nature theme
+            GradientPaint gp = new GradientPaint(
+                0, 0, new Color(180, 210, 140), // Light green
+                0, getHeight(), new Color(120, 160, 90) // Darker green
+            );
+            
+            g2d.setPaint(gp);
+            g2d.fillRect(0, 0, getWidth(), getHeight());
+            
+            // Draw some simple nature elements
+            // Grass on bottom
+            g2d.setColor(new Color(100, 140, 70));
+            for (int i = 0; i < getWidth(); i += 20) {
+                int height = 5 + (int)(Math.random() * 10);
+                g2d.fillRect(i, getHeight() - height, 10, height);
+            }
+            // Sun in corner
+            g2d.setColor(new Color(255, 220, 130, 120));
+            g2d.fillOval(getWidth() - 100, 50, 150, 150);
+            
+            // Clock icon to represent time restrictions
+            g2d.setColor(new Color(139, 87, 42, 160));
+            int clockX = 625;
+            int clockY = 40;
+            int clockSize = 70;
+            g2d.fillOval(clockX, clockY, clockSize, clockSize);
+            g2d.setColor(new Color(255, 255, 240, 220));
+            g2d.fillOval(clockX + 5, clockY + 5, clockSize - 10, clockSize - 10);
+            g2d.setColor(new Color(70, 86, 20));
+            g2d.setStroke(new BasicStroke(3));
+            // Clock hands
+            g2d.drawLine(clockX + clockSize/2, clockY + clockSize/2, clockX + clockSize/2, clockY + clockSize/3);
+            g2d.drawLine(clockX + clockSize/2, clockY + clockSize/2, clockX + 2*clockSize/3, clockY + clockSize/2);
+            
+            // Subtle cloud shapes
+            g2d.setColor(new Color(255, 255, 255, 40));
+            g2d.fillOval(200, 30, 150, 60);
+            g2d.fillOval(150, 20, 100, 50);
+            g2d.fillOval(250, 15, 120, 70);
+            
+            g2d.dispose();
         }
     }
 
