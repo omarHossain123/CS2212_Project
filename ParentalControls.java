@@ -150,10 +150,9 @@ public class ParentalControls extends JDialog {
             if (enteredPassword.equals(PASSWORD)) {
                 cardLayout.show(mainPanel, "settings");
             } else {
-                JOptionPane.showMessageDialog(this, 
+                StyledDialog.showErrorDialog(this, 
                     "Incorrect Password", 
-                    "Access Denied", 
-                    JOptionPane.ERROR_MESSAGE);
+                    "Access Denied");
                 passwordField.setText("");
             }
         });
@@ -295,10 +294,9 @@ public class ParentalControls extends JDialog {
         JButton resetStatsButton = createStyledButton("Reset Statistics", 150);
         resetStatsButton.setBounds(30, 290, 150, 40);
         resetStatsButton.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(this, 
+            int confirm = StyledDialog.showConfirmDialog(this, 
                 "Are you sure you want to reset all play statistics?", 
-                "Confirm Reset", 
-                JOptionPane.YES_NO_OPTION);
+                "Confirm Reset");
                 
             if (confirm == JOptionPane.YES_OPTION) {
                 totalPlayTime = 0;
@@ -314,10 +312,9 @@ public class ParentalControls extends JDialog {
         reviveButton.setBounds(200, 290, 130, 40);
         reviveButton.addActionListener(e -> {
             // Implement pet revival logic here
-            JOptionPane.showMessageDialog(this, 
+            StyledDialog.showInformationDialog(this, 
                 "Pet revival feature not yet implemented", 
-                "Feature Unavailable", 
-                JOptionPane.INFORMATION_MESSAGE);
+                "Feature Unavailable");
         });
         contentPanel.add(reviveButton);
 
@@ -326,10 +323,9 @@ public class ParentalControls extends JDialog {
         saveButton.addActionListener(e -> {
             if (validateAndSaveTimeSettings()) {
                 saveSettings();
-                JOptionPane.showMessageDialog(this, 
+                StyledDialog.showInformationDialog(this, 
                     "Play time settings saved successfully!", 
-                    "Settings Saved", 
-                    JOptionPane.INFORMATION_MESSAGE);
+                    "Settings Saved");
             }
         });
         contentPanel.add(saveButton);
@@ -428,10 +424,9 @@ public class ParentalControls extends JDialog {
             
             return true;
         } catch (DateTimeParseException e) {
-            JOptionPane.showMessageDialog(this, 
+            StyledDialog.showErrorDialog(this, 
                 "Invalid time format. Please use HH:mm (24-hour format).\nExample: 08:00 or 20:30", 
-                "Invalid Time Format", 
-                JOptionPane.ERROR_MESSAGE);
+                "Invalid Time Format");
             return false;
         }
     }
@@ -481,10 +476,9 @@ public class ParentalControls extends JDialog {
             System.out.println("Parental settings saved successfully to " + CONTROLS_FILE);
         } catch (IOException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, 
+            StyledDialog.showErrorDialog(this, 
                 "Failed to save settings: " + e.getMessage(), 
-                "Save Error", 
-                JOptionPane.ERROR_MESSAGE);
+                "Save Error");
         }
     }
     
