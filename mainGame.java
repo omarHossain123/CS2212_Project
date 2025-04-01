@@ -41,25 +41,41 @@ import javax.swing.JComponent;
 
     /**
      * Creates new form mainMenu
+     * @param selectedPet The pet to use for this game
+     * @param saveData Optional save data to restore (can be null for new game)
      */
-    public mainGame(Pet selectedPet) {
+    public mainGame(Pet selectedPet, GameSaveData saveData) {
         this.currentPet = selectedPet;
+        
+        // Create a new game with the pet type
         game = new Game(selectedPet.getType());
+        
+        // If we have save data, restore the game state
+        if (saveData != null) {
+            // Restore all game data from the save
+            game.restoreFromSave(saveData);
+            
+            // Update the current pet reference to use the one from the saved game
+            // which should have all the correct stats
+            this.currentPet = game.getPet();
+        }
+        
         initComponents();
         addSaveButton();
-         
+        
         // Set the frame size explicitly to match your panel
         this.setSize(1075, 680); // Width, Height (add extra for window decorations)
-         
+        
         // Sets the game application location in the middle of the screen
         setLocationRelativeTo(null);
-
+        
         // Load the initial pet image
         loadPetImage();
         
-        // Initialize the score label with starting value
+        // Initialize the score label with current value from game
+        gameScore = (int) game.getScore();
         scoreLabel.setText(String.format("%017d", gameScore));
-          
+        
         // Create and start the score timer
         timer = new Timer(500, new ActionListener() {
             @Override
@@ -79,7 +95,7 @@ import javax.swing.JComponent;
                 scoreLabel.setText(String.format("%017d", gameScore));
             }
         });
-    
+
         timer.setRepeats(true);
         timer.start();
         

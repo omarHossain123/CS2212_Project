@@ -271,4 +271,154 @@ public class Game {
     public String petType() {
         return petType;
     }
+
+    /**
+     * Gets the time when the pet was last fed
+     * @return last feed time in milliseconds
+     */
+    public long getLastFeedTime() {
+        return lastFeedTime;
+    }
+
+    /**
+     * Sets the time when the pet was last fed
+     * @param lastFeedTime time in milliseconds
+     */
+    public void setLastFeedTime(long lastFeedTime) {
+        this.lastFeedTime = lastFeedTime;
+    }
+
+    /**
+     * Gets the time when the pet was last given a gift
+     * @return last gift time in milliseconds
+     */
+    public long getLastGiftTime() {
+        return lastGiftTime;
+    }
+
+    /**
+     * Sets the time when the pet was last given a gift
+     * @param lastGiftTime time in milliseconds
+     */
+    public void setLastGiftTime(long lastGiftTime) {
+        this.lastGiftTime = lastGiftTime;
+    }
+
+    /**
+     * Gets the time when the pet last went to sleep
+     * @return last sleep time in milliseconds
+     */
+    public long getLastSleepTime() {
+        return lastSleepTime;
+    }
+
+    /**
+     * Sets the time when the pet last went to sleep
+     * @param lastSleepTime time in milliseconds
+     */
+    public void setLastSleepTime(long lastSleepTime) {
+        this.lastSleepTime = lastSleepTime;
+    }
+
+    /**
+     * Gets the time when the pet was last taken to the vet
+     * @return last vet time in milliseconds
+     */
+    public long getLastVetTime() {
+        return lastVetTime;
+    }
+
+    /**
+     * Sets the time when the pet was last taken to the vet
+     * @param lastVetTime time in milliseconds
+     */
+    public void setLastVetTime(long lastVetTime) {
+        this.lastVetTime = lastVetTime;
+    }
+
+    /**
+     * Gets the time when the pet last played
+     * @return last play time in milliseconds
+     */
+    public long getLastPlayTime() {
+        return lastPlayTime;
+    }
+
+    /**
+     * Sets the time when the pet last played
+     * @param lastPlayTime time in milliseconds
+     */
+    public void setLastPlayTime(long lastPlayTime) {
+        this.lastPlayTime = lastPlayTime;
+    }
+
+    /**
+     * Gets the time when the pet was last walked
+     * @return last walk time in milliseconds
+     */
+    public long getLastWalkTime() {
+        return lastWalkTime;
+    }
+
+    /**
+     * Sets the time when the pet was last walked
+     * @param lastWalkTime time in milliseconds
+     */
+    public void setLastWalkTime(long lastWalkTime) {
+        this.lastWalkTime = lastWalkTime;
+    }
+
+    /**
+     * Sets the score to a specific value
+     * @param score the score value to set
+     */
+    public void setScore(double score) {
+        this.score = score;
+    }
+
+    /**
+     * Sets the pet object
+     * @param pet The pet object to set
+     */
+    public void setPet(Pet pet) {
+        this.pet = pet;
+    }
+
+    /**
+     * Sets the inventory object
+     * @param inventory The inventory to set
+     */
+    public void setInventory(Inventory inventory) {
+        this.inventory = inventory;
+    }
+
+    /**
+     * Updates the game state from a saved game
+     * @param saveData The saved game data to restore from
+     */
+    public void restoreFromSave(GameSaveData saveData) {
+        if (saveData == null) return;
+        
+        // Restore pet
+        if (saveData.getPet() != null) {
+            this.pet = saveData.getPet();
+            this.petType = this.pet.getType();
+        }
+        
+        // Restore score
+        this.score = saveData.getScore();
+        
+        // Restore inventory
+        if (saveData.getInventory() != null) {
+            this.inventory = saveData.getInventory();
+        }
+        
+        // Restore cooldown timers
+        this.lastFeedTime = saveData.getLastFeedTime();
+        this.lastGiftTime = saveData.getLastGiftTime();
+        this.lastSleepTime = saveData.getLastSleepTime();
+        this.lastVetTime = saveData.getLastVetTime();
+        this.lastPlayTime = saveData.getLastPlayTime();
+        this.lastWalkTime = saveData.getLastWalkTime();
+    }
 }
