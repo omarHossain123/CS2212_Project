@@ -62,8 +62,8 @@ public class UserInterface {
                 if (saveName != null) {
                     currentSaveFile = saveName;
                     
-                    // Create a new game with the selected pet - use mainGameNew instead of mainGame
-                    mainGameNew game = new mainGameNew(currentPet, null); // Pass null for saveData since it's a new game
+                    // Create a new game with the selected pet - using mainGame instead of mainGameNew
+                    mainGame game = new mainGame(currentPet, null);
                     
                     // Add window listener to save game on close
                     game.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -106,8 +106,8 @@ public class UserInterface {
                     if (loadGame()) {
                         mainMenu.dispose();
                         
-                        // Create the game with loaded pet and save data - use mainGameNew instead of mainGame
-                        mainGameNew game = new mainGameNew(currentPet, currentSaveData);
+                        // Create the game with loaded pet - using mainGame instead of mainGameNew
+                        mainGame game = new mainGame(currentPet, null);
                         
                         // Add window listener to save game on close
                         game.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -218,13 +218,13 @@ public class UserInterface {
             return;
         }
         
-        // Get reference to the game instance from mainGameNew
-        mainGameNew gameInstance = null;
+        // Get reference to the game instance from mainGame
+        mainGame gameInstance = null;
         
-        // Find the mainGameNew instance if it exists
+        // Find the mainGame instance if it exists
         for (java.awt.Window window : java.awt.Window.getWindows()) {
-            if (window instanceof mainGameNew) {
-                gameInstance = (mainGameNew) window;
+            if (window instanceof mainGame) {
+                gameInstance = (mainGame) window;
                 break;
             }
         }

@@ -1,4 +1,3 @@
-import java.io.Serializable;
 
 /**
  * The Inventory class represents the player's inventory, containing items, a current pet,
@@ -6,7 +5,7 @@ import java.io.Serializable;
  * It provides methods to manage the inventory, current pet, and score, as well as to use items
  * in the inventory to affect the pet's hunger and happiness.
  */
-public class Inventory implements Serializable  {
+public class Inventory {
     
     /** The current pet of the player. */
     private String currentPet;
