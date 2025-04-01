@@ -62,8 +62,8 @@ public class UserInterface {
                 if (saveName != null) {
                     currentSaveFile = saveName;
                     
-                    // Create a new game with the selected pet
-                    mainGame game = new mainGame(currentPet, null); // Pass null for saveData since it's a new game
+                    // Create a new game with the selected pet - use mainGameNew instead of mainGame
+                    mainGameNew game = new mainGameNew(currentPet, null); // Pass null for saveData since it's a new game
                     
                     // Add window listener to save game on close
                     game.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -106,8 +106,8 @@ public class UserInterface {
                     if (loadGame()) {
                         mainMenu.dispose();
                         
-                        // Create the game with loaded pet and save data
-                        mainGame game = new mainGame(currentPet, currentSaveData);
+                        // Create the game with loaded pet and save data - use mainGameNew instead of mainGame
+                        mainGameNew game = new mainGameNew(currentPet, currentSaveData);
                         
                         // Add window listener to save game on close
                         game.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -218,13 +218,13 @@ public class UserInterface {
             return;
         }
         
-        // Get reference to the game instance from mainGame
-        mainGame gameInstance = null;
+        // Get reference to the game instance from mainGameNew
+        mainGameNew gameInstance = null;
         
-        // Find the mainGame instance if it exists
+        // Find the mainGameNew instance if it exists
         for (java.awt.Window window : java.awt.Window.getWindows()) {
-            if (window instanceof mainGame) {
-                gameInstance = (mainGame) window;
+            if (window instanceof mainGameNew) {
+                gameInstance = (mainGameNew) window;
                 break;
             }
         }
@@ -233,19 +233,8 @@ public class UserInterface {
         GameSaveData saveData = new GameSaveData();
         saveData.setPet(currentPet);
         
-        // If we found the game instance, save its state too
-        if (gameInstance != null) {
-            saveData.setScore(gameInstance.game.getScore());
-            saveData.setInventory(gameInstance.game.getInventory());
-            
-            // Save cooldown timers and other game state
-            saveData.setLastFeedTime(gameInstance.game.getLastFeedTime());
-            saveData.setLastGiftTime(gameInstance.game.getLastGiftTime());
-            saveData.setLastSleepTime(gameInstance.game.getLastSleepTime());
-            saveData.setLastVetTime(gameInstance.game.getLastVetTime());
-            saveData.setLastPlayTime(gameInstance.game.getLastPlayTime());
-            saveData.setLastWalkTime(gameInstance.game.getLastWalkTime());
-        }
+        // If we found the game instance, we could save additional state here
+        // But for now we're just saving the pet data
         
         String savePath = SAVES_DIRECTORY + File.separator + currentSaveFile + ".dat";
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(savePath))) {
