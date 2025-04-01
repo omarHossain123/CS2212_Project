@@ -34,13 +34,13 @@
          "assets\\images\\itemSprites\\cards.png"
      };
      private int currentImageIndexGift = 0;
-     public Game game ;
+     public Game game;
      
      /**
       * Creates new form commands
       */
      public commands(Game g) {
-        game = g;
+         game = g;
          initComponents();
          updateButtonImage(button12Images, feed, currentImageIndexFood); // Initialize with first image
          updateButtonImage(button11Images, giveGift, currentImageIndexGift); // Initialize with first image
@@ -52,7 +52,7 @@
      }
      
      /**
-     * Sets up key bindings for the main game window. Specifically binds the ESC key
+     * Sets up key bindings for the commands window. Specifically binds the ESC key
      * to open the settings window when pressed. This uses Swing's key binding system
      * which is more reliable than KeyListeners as it works even when components have focus.
      * 
@@ -122,6 +122,7 @@
          inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0), "giftAction");
          actionMap.put("giftAction", giftAction);
      }
+     
      /**
      * Updates the icon of a JButton with the specified image from the given array.
      * 
@@ -320,92 +321,121 @@
      }// </editor-fold>//GEN-END:initComponents
  
      private void escActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_escActionPerformed
-         // TODO add your handling code here:
+         // Close the commands window
          this.dispose();
      }//GEN-LAST:event_escActionPerformed
  
      private void takeToVetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_takeToVetActionPerformed
-         // TODO add your handling code here:
-         //Cool Down Check
+         // Take pet to vet to increase health
          game.checkState();
          if(game.takeToVet()){
-
+             // Successfully took pet to vet
+             System.out.println("Pet has been treated by the vet!");
+             // You could add animation or sound effects here
          }
          else{
-
+             // On cooldown or other failure
+             System.out.println("Cannot take pet to vet right now. Try again later.");
          }
      }//GEN-LAST:event_takeToVetActionPerformed
  
      private void walkPetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_walkPetActionPerformed
-        game.checkState();
-        if(game.walk()){
-
-        }
-        else{
-
-        }
+         // Take pet for a walk to improve health and happiness
+         game.checkState();
+         if(game.walk()){
+             // Successfully walked pet
+             System.out.println("Took pet for a walk!");
+             // You could add animation or sound effects here
+         }
+         else{
+             // On cooldown or other failure
+             System.out.println("Cannot walk pet right now. Try again later.");
+         }
      }//GEN-LAST:event_walkPetActionPerformed
  
      private void sleepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sleepActionPerformed
-         // TODO add your handling code here:
-         System.out.println("Button Pressed");
-         game.TesterMethod();
+         // Put pet to sleep to restore sleep stat
+         System.out.println("Sleep button pressed");
          game.checkState();
-         System.out.println(game.checkState());
          if(game.gotToBed()){
-            System.out.println("ZZZZZZZZZZZZZZZZZZ");
+             System.out.println("Pet is now sleeping!");
+             // You could add animation or sound effects here
          }
          else{
- 
+             System.out.println("Pet cannot sleep right now. Try again later.");
          }
      }//GEN-LAST:event_sleepActionPerformed
  
      private void playActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playActionPerformed
-         // TODO add your handling code here:
-         ///Cool DOwn
+         // Play with pet to increase happiness
          game.checkState();
          if(game.play()){
-            
+             // Successfully played with pet
+             System.out.println("Playing with pet!");
+             // You could add animation or sound effects here
          }
          else{
- 
+             // On cooldown or other failure
+             System.out.println("Cannot play with pet right now. Try again later.");
          }
      }//GEN-LAST:event_playActionPerformed
  
      private void giveGiftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_giveGiftActionPerformed
-         // TODO add your handling code here:
-         //giveGift();
+         // Give gift to pet to increase happiness
+         // Different gifts might have different effects based on the selected gift type
+         String giftType = button11Images[currentImageIndexGift];
+         System.out.println("Giving gift: " + giftType);
+         
+         game.checkState();
+         if(game.giveGift()){
+             // Successfully gave gift to pet
+             System.out.println("Gave a gift to the pet!");
+             // You could add animation or sound effects here
+         }
+         else{
+             // On cooldown or other failure
+             System.out.println("Cannot give gift right now. Try again later.");
+         }
      }//GEN-LAST:event_giveGiftActionPerformed
  
      private void feedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_feedActionPerformed
-         // TODO add your handling code here:
-         //feed();
+         // Feed pet to increase hunger stat
+         // Different foods might have different effects based on the selected food type
+         String foodType = button12Images[currentImageIndexFood];
+         System.out.println("Feeding: " + foodType);
+         
+         game.checkState();
+         if(game.feed()){
+             // Successfully fed the pet
+             System.out.println("Fed the pet!");
+             // You could add animation or sound effects here
+         }
+         else{
+             // On cooldown or other failure
+             System.out.println("Cannot feed pet right now. Try again later.");
+         }
      }//GEN-LAST:event_feedActionPerformed
  
      private void nextGiftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextGiftActionPerformed
-         // TODO add your handling code here:
-         // Next Image
+         // Cycle to next gift image
          currentImageIndexGift = (currentImageIndexGift + 1) % button11Images.length;
          updateButtonImage(button11Images, giveGift, currentImageIndexGift);
      }//GEN-LAST:event_nextGiftActionPerformed
  
      private void prevGiftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prevGiftActionPerformed
-         // TODO add your handling code here:
-         // Previous image
+         // Cycle to previous gift image
          currentImageIndexGift = (currentImageIndexGift - 1 + button11Images.length) % button11Images.length;
          updateButtonImage(button11Images, giveGift, currentImageIndexGift);
      }//GEN-LAST:event_prevGiftActionPerformed
  
      private void prevFoodActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_prevFoodActionPerformed
-         // TODO add your handling code here:
-         // Previous image
+         // Cycle to previous food image
          currentImageIndexFood = (currentImageIndexFood - 1 + button12Images.length) % button12Images.length;
          updateButtonImage(button12Images, feed, currentImageIndexFood);
      }//GEN-LAST:event_prevFoodActionPerformed
  
      private void nextFoodActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextFoodActionPerformed
-         // TODO add your handling code here:
-         // Next Image
+         // Cycle to next food image
          currentImageIndexFood = (currentImageIndexFood + 1) % button12Images.length;
          updateButtonImage(button12Images, feed, currentImageIndexFood);
      }//GEN-LAST:event_nextFoodActionPerformed
@@ -413,7 +443,7 @@
      /**
       * @param args the command line arguments
       */
-  
+   
      // Variables declaration - do not modify//GEN-BEGIN:variables
      private javax.swing.JButton esc;
      private javax.swing.JButton feed;
@@ -430,4 +460,3 @@
      private javax.swing.JButton walkPet;
      // End of variables declaration//GEN-END:variables
  }
- 

@@ -1,230 +1,274 @@
-/**
- * Game class handles the game logic and keeps track of the pet and inventory
- * <p>
- * This class will handle the main game logic, and will interact with the pet and 
- * inventory class to manage and run the game logic. 
- * @Author Ahmed Sinjab
- * @version 1.1
- */
-
-
- public class Game {
-    // Handles the game logic, keeps track of pet states, and manages inventory.
-    // code goes here...
-    private String Name;
-    /**
-     * The allowedTime varaible will store the time limit of the player
-     * Total Allowed Time - Total Played time
-     */
-    private float allowedTime;
-    /**
-     * inventory will be the inventory of the game and its of class Inventory
-     */
-    private Inventory inventory;
-    /**
-     * pet will be the pet for the game, of which the character interact with, of
-     * cLass Pet
-     */
+public class Game {
     private Pet pet;
-    /**
-     * timePlayed will be the variable that stores the amount of time the play spent
-     * on the game
-     */
-    private float timePlayed;
-    /**
-     * score will be the variable to keep track of the players "score"
-     */
+    private String petType;
     private double score;
+    private Inventory inventory;
+    
+    // Cooldown timers for various actions (in milliseconds)
+    private long lastFeedTime = 0;
+    private long lastGiftTime = 0;
+    private long lastSleepTime = 0;
+    private long lastVetTime = 0;
+    private long lastPlayTime = 0;
+    private long lastWalkTime = 0;
+    
+    // Cooldown periods (in milliseconds)
+    private static final long FEED_COOLDOWN = 10000; // 10 seconds
+    private static final long GIFT_COOLDOWN = 15000; // 15 seconds
+    private static final long SLEEP_COOLDOWN = 20000; // 20 seconds
+    private static final long VET_COOLDOWN = 30000;   // 30 seconds
+    private static final long PLAY_COOLDOWN = 12000;  // 12 seconds
+    private static final long WALK_COOLDOWN = 18000;  // 18 seconds
+    
+    public Game(String petType) {
+        this.petType = petType;
+        this.pet = new Pet(petType);
+        this.score = 0;
+        this.inventory = new Inventory("defaultType", 0.0);
+    }
+    
     /**
-     * lockedPets will be the array storing the pets the player has not unlocked yet
+     * Decrements pet stats over time
      */
-    private boolean lockedPets[];
-
+    public void gameDecrement() {
+        // Rate at which stats decrease
+        double healthRate = 0.1;
+        double happinessRate = 0.2;
+        double hungerRate = 0.25;
+        double sleepRate = 0.15;
+        
+        // Apply decrements
+        pet.decrementHealth(healthRate);
+        pet.decrementHappiness(happinessRate);
+        pet.decrementHunger(hungerRate);
+        pet.decrementSleep(sleepRate);
+        
+        // Check for critical conditions
+        checkState();
+    }
+    
     /**
-     * Constroctor for class Game made to intialize the game class
+     * Checks the pet's state and updates it accordingly
+     * @return The current state of the pet
      */
-    public Game(String Type) {
-        timePlayed = 0;
-        score = 0;
-        pet = new Pet(Type);
-        inventory = new Inventory(Type, score);
-        score = 0;
-    }
-
-    /**
-     * This one for new game
-     * A Constroctor of class Game, this creates the Game object with the inputed
-     * data and will manage all the details of the game
-     * 
-     * @param p          This will be the pet which the game will manage
-     * @param locked     This will be the list of all the locked pets
-     * @param unlocked   This will be the list of all unlocked pets
-     * @param allowed    This will be the time allowed to play for the player
-     * @param invent     This will be the inventory that will be used by the game
-     *                   and that is assoicated with the pet.
-     * @param scoreSoFar This will store the score of this pet so far.
-     * @param time       This will store the time played so far.
-     */
-    public Game(Pet p, boolean locked[], float allowed, Inventory invent, double scoreSoFar, float time) {
-        // Store each variable into the expected variable in the class
-        pet = p;
-        lockedPets = locked;
-        allowedTime = allowed;
-        inventory = invent;
-        score = scoreSoFar;
-        timePlayed = time;
-
-    }
-   public Pet getPet(){
-       return pet;
-   }
-    // public void Game(){
-    public void gameStats(int decrements){
-        pet.decrementHealth(decrements);
-    }
-    public void gameDecrement(){
-       pet.increment();
-    }
-    public void increaseScore(float increase) {
-        score = score + increase;
-
-    }
-    public float getScore(){
-       return (float) score;
-    }
-    public Inventory getInventory(){
-       return this.inventory;
-    }
-   public String petType(){
-       return pet.getType();
-   }
-   public void setScore(double s){
-       score = (float)s;
-     
-   }
-    public boolean goToBed(String state) {
-        if ((state != "dead") || (state != "angry") || (state != "sleep")) {
-            pet.setState("sleep");
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean validState() {
-       System.out.println(pet.getState());
-        if ((pet.getState() == "default") || (pet.getState() == "hungry")) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // }
-    /**
-     * This method is ment to retrive the state that the pet is in
-     * 
-     * @return State of pet in String
-     */
-
     public String checkState() {
-        if (pet.getHealth() == 0) {
-            pet.setState("dead");
-            pet.updateRates(0);
-            return "dead";
-        } else if (pet.getSleep() == 0) {
-            pet.decrementHealth(15);
-            if (pet.getHealth() != 0) {
-                pet.setState("sleep");
-                pet.updateRates(1);
-                return "sleep";
-            } else {
-                pet.setState("dead");
-                pet.updateRates(0);
-                return "dead";
-            }
-            
-        } else if (pet.getHappiness() == 0) {
-            pet.setState("angry");
-            return "angry";
-        } else if (pet.getHunger() == 0) {
+        // Check if the pet is in a critical state
+        if (pet.getHealth() <= 20) {
+            pet.setState("sick");
+        } else if (pet.getHunger() <= 20) {
             pet.setState("hungry");
-            pet.decrementHealth(15);
-            pet.updateRates(2);
-            return "hungry";
-        }
-        return "default";
-
-    }
-
-    public boolean takeToVet() {
-        if (validState()) {
-            pet.increaseHealth(25);
-            pet.decrementSleep(5);
-            pet.decrementHappiness(15);
-            return true;
+        } else if (pet.getSleep() <= 20) {
+            pet.setState("tired");
+        } else if (pet.getHappiness() <= 20) {
+            pet.setState("sad");
         } else {
+            pet.setState("normal");
+        }
+        
+        return pet.getState();
+    }
+    
+    /**
+     * Feeds the pet to increase hunger and potentially happiness
+     * @return true if the pet was fed successfully, false if on cooldown
+     */
+    public boolean feed() {
+        long currentTime = System.currentTimeMillis();
+        
+        // Check if the action is on cooldown
+        if (currentTime - lastFeedTime < FEED_COOLDOWN) {
+            System.out.println("Feed action is on cooldown!");
             return false;
         }
+        
+        // Increase hunger
+        pet.increaseHunger(15);
+        
+        // Small happiness boost from feeding
+        pet.increaseHappiness(5);
+        
+        // Update score
+        increaseScore(10);
+        
+        // Set cooldown timer
+        lastFeedTime = currentTime;
+        
+        System.out.println("Pet has been fed! Hunger: " + pet.getHunger());
+        return true;
     }
-    public void TesterMethod(){
-       pet.setSleep(20);
-    }
-    public boolean play() {
-        if (validState()) {
-            pet.increaseHappiness(10);
-            increaseScore(200);
-            return true;
-        } else {
+    
+    /**
+     * Gives a gift to the pet to increase happiness
+     * @return true if the gift was given successfully, false if on cooldown
+     */
+    public boolean giveGift() {
+        long currentTime = System.currentTimeMillis();
+        
+        // Check if the action is on cooldown
+        if (currentTime - lastGiftTime < GIFT_COOLDOWN) {
+            System.out.println("Gift action is on cooldown!");
             return false;
         }
+        
+        // Significant happiness boost
+        pet.increaseHappiness(20);
+        
+        // Update score
+        increaseScore(15);
+        
+        // Set cooldown timer
+        lastGiftTime = currentTime;
+        
+        System.out.println("Pet received a gift! Happiness: " + pet.getHappiness());
+        return true;
     }
-
-    public boolean walk() {
-        if (validState()) {
-            pet.increaseHappiness(15);
-            pet.decrementSleep(15);
-            pet.decrementHunger(10);
-            increaseScore(150);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
+    
+    /**
+     * Puts the pet to sleep to restore sleep stat
+     * @return true if the pet went to sleep successfully, false if on cooldown
+     */
     public boolean gotToBed() {
-        if (validState()) {
-            pet.setState("sleep");
-            pet.updateRates(1);
-            return true;
-        } else {
+        long currentTime = System.currentTimeMillis();
+        
+        // Check if the action is on cooldown
+        if (currentTime - lastSleepTime < SLEEP_COOLDOWN) {
+            System.out.println("Sleep action is on cooldown!");
             return false;
         }
+        
+        // Restore sleep
+        pet.increaseSleep(25);
+        
+        // Update score
+        increaseScore(15);
+        
+        // Set cooldown timer
+        lastSleepTime = currentTime;
+        
+        System.out.println("Pet is sleeping! Sleep: " + pet.getSleep());
+        return true;
     }
-
-    public boolean giveGift(int index) {
-        double[] improve = inventory.useItem(index);
-        if((0 > improve[0])||(0 > improve[1])){
+    
+    /**
+     * Takes the pet to the vet to restore health
+     * @return true if the pet was treated successfully, false if on cooldown
+     */
+    public boolean takeToVet() {
+        long currentTime = System.currentTimeMillis();
+        
+        // Check if the action is on cooldown
+        if (currentTime - lastVetTime < VET_COOLDOWN) {
+            System.out.println("Vet action is on cooldown!");
             return false;
-
         }
-        else{
-            pet.increaseHunger(improve[0]);
-            pet.increaseHappiness(improve[1]);
-            return true;
-        }
+        
+        // Significant health boost
+        pet.increaseHealth(30);
+        
+        // Small happiness penalty (pets don't like vets!)
+        pet.decrementHappiness(5);
+        
+        // Update score
+        increaseScore(20);
+        
+        // Set cooldown timer
+        lastVetTime = currentTime;
+        
+        System.out.println("Pet visited the vet! Health: " + pet.getHealth());
+        return true;
     }
-    public boolean giveFood(int index){
-        double[] improve = inventory.useItem(index);
-        if((0 > improve[0])||(0 > improve[1])){
+    
+    /**
+     * Plays with the pet to increase happiness
+     * @return true if played successfully, false if on cooldown
+     */
+    public boolean play() {
+        long currentTime = System.currentTimeMillis();
+        
+        // Check if the action is on cooldown
+        if (currentTime - lastPlayTime < PLAY_COOLDOWN) {
+            System.out.println("Play action is on cooldown!");
             return false;
-
         }
-        else{
-            pet.increaseHunger(improve[0]);
-            pet.increaseHappiness(improve[1]);
-            return true;
-        }
+        
+        // Increase happiness
+        pet.increaseHappiness(20);
+        
+        // Playing makes the pet a bit more hungry and tired
+        pet.decrementHunger(5);
+        pet.decrementSleep(5);
+        
+        // Update score
+        increaseScore(15);
+        
+        // Set cooldown timer
+        lastPlayTime = currentTime;
+        
+        System.out.println("Played with pet! Happiness: " + pet.getHappiness());
+        return true;
     }
-
+    
+    /**
+     * Takes the pet for a walk to improve multiple stats
+     * @return true if walked successfully, false if on cooldown
+     */
+    public boolean walk() {
+        long currentTime = System.currentTimeMillis();
+        
+        // Check if the action is on cooldown
+        if (currentTime - lastWalkTime < WALK_COOLDOWN) {
+            System.out.println("Walk action is on cooldown!");
+            return false;
+        }
+        
+        // Improve multiple stats
+        pet.increaseHealth(10);
+        pet.increaseHappiness(15);
+        
+        // Walking makes the pet more hungry and tired
+        pet.decrementHunger(10);
+        pet.decrementSleep(10);
+        
+        // Update score
+        increaseScore(20);
+        
+        // Set cooldown timer
+        lastWalkTime = currentTime;
+        
+        System.out.println("Walked the pet! Health: " + pet.getHealth() + ", Happiness: " + pet.getHappiness());
+        return true;
+    }
+    
+    /**
+     * A test method for debugging
+     */
+    public void TesterMethod() {
+        System.out.println("Tester method called");
+        System.out.println("Pet stats: " + pet.toString());
+    }
+    
+    /**
+     * Increases the game score
+     * @param amount Amount to increase the score by
+     */
+    public void increaseScore(double amount) {
+        score += amount;
+    }
+    
+    // Getters
+    public Pet getPet() {
+        return pet;
+    }
+    
+    public double getScore() {
+        return score;
+    }
+    
+    public Inventory getInventory() {
+        return inventory;
+    }
+    
+    public String petType() {
+        return petType;
+    }
 }
