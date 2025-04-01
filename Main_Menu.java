@@ -98,6 +98,7 @@ public class Main_Menu extends JFrame {
         buttonPanel.add(Box.createRigidArea(new Dimension(0, 15)));
         buttonPanel.add(jButton5);
         
+        
         // Add panels to center panel
         centerPanel.add(Box.createVerticalGlue()); // Push everything down from top
         centerPanel.add(titlePanel);
