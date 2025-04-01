@@ -76,7 +76,7 @@ public class UserInterface {
                 }
             });            
         });
-
+    
         mainMenu.getContinueGameButton().addActionListener(e -> {
             // Check parental controls before loading game
             if (!ParentalControls.isPlayingAllowed()) {
@@ -91,15 +91,12 @@ public class UserInterface {
                         "No saved games found. Please start a new game.",
                         "No Saves Found");
             } else {
-                // Show save file selection dialog
-                String selectedSave = (String) JOptionPane.showInputDialog(
+                // Use our new styled save selector
+                String selectedSave = StyledSaveSelector.showDialog(
                         mainMenu,
-                        "Select a saved game to load:",
+                        "Choose a saved pet to continue your adventure:",
                         "Load Game",
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        saveFiles.toArray(),
-                        saveFiles.get(0));
+                        saveFiles);
                 
                 if (selectedSave != null) {
                     currentSaveFile = selectedSave;
@@ -120,9 +117,9 @@ public class UserInterface {
                 }
             }
         });
-
-        mainMenu.setVisible(true);
-    }
+        
+            mainMenu.setVisible(true);
+        }
     
     /**
      * Shows a message when play is restricted by parental controls
