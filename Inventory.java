@@ -1,5 +1,4 @@
 
-
 /**
  * The Inventory class represents the player's inventory, containing items, a current pet,
  * locked pets, and the player's score.
@@ -122,7 +121,36 @@ public class Inventory {
      * @return An array containing the hunger bonus at index 0 and the happiness bonus at index 1.
      */
     public double[] useItem(int itemIndex) {
-        inventory[itemIndex].decreaseItem();
-        return new double[]{inventory[itemIndex].getHungerBonus(), inventory[itemIndex].getHappinessBonus()};
+
+        if (inventory[itemIndex].decreaseItem()){
+            return new double[]{inventory[itemIndex].getHungerBonus(), inventory[itemIndex].getHappinessBonus()};
+        }
+        else{
+            double[] zero = {-1,-1};
+            return zero;
+
+        }
     }
+
+    public int findAvailableFood(){
+        for (int i = 0; i < 3; i++){
+            if (inventory[i].getNumberItem() != 0){
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    public int findAvailableToy(){
+        for (int i = 3; i < 6; i++){
+            if (inventory[i].getNumberItem() != 0){
+                return i;
+            }
+        }
+
+        return -1;
+    }
+    
 }
+

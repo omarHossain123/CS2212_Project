@@ -34,11 +34,13 @@
          "assets\\images\\itemSprites\\cards.png"
      };
      private int currentImageIndexGift = 0;
+     public Game game ;
      
      /**
       * Creates new form commands
       */
-     public commands() {
+     public commands(Game g) {
+        game = g;
          initComponents();
          updateButtonImage(button12Images, feed, currentImageIndexFood); // Initialize with first image
          updateButtonImage(button11Images, giveGift, currentImageIndexGift); // Initialize with first image
@@ -324,22 +326,50 @@
  
      private void takeToVetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_takeToVetActionPerformed
          // TODO add your handling code here:
-         //goToVet()
+         //Cool Down Check
+         game.checkState();
+         if(game.takeToVet()){
+
+         }
+         else{
+
+         }
      }//GEN-LAST:event_takeToVetActionPerformed
  
      private void walkPetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_walkPetActionPerformed
-         // TODO add your handling code here:
-         //walkPet();
+        game.checkState();
+        if(game.walk()){
+
+        }
+        else{
+
+        }
      }//GEN-LAST:event_walkPetActionPerformed
  
      private void sleepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sleepActionPerformed
          // TODO add your handling code here:
-         //sleep();
+         System.out.println("Button Pressed");
+         game.TesterMethod();
+         game.checkState();
+         System.out.println(game.checkState());
+         if(game.gotToBed()){
+            System.out.println("ZZZZZZZZZZZZZZZZZZ");
+         }
+         else{
+ 
+         }
      }//GEN-LAST:event_sleepActionPerformed
  
      private void playActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playActionPerformed
          // TODO add your handling code here:
-         //play();
+         ///Cool DOwn
+         game.checkState();
+         if(game.play()){
+            
+         }
+         else{
+ 
+         }
      }//GEN-LAST:event_playActionPerformed
  
      private void giveGiftActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_giveGiftActionPerformed
@@ -379,8 +409,11 @@
          currentImageIndexFood = (currentImageIndexFood + 1) % button12Images.length;
          updateButtonImage(button12Images, feed, currentImageIndexFood);
      }//GEN-LAST:event_nextFoodActionPerformed
-      
-     
+ 
+     /**
+      * @param args the command line arguments
+      */
+  
      // Variables declaration - do not modify//GEN-BEGIN:variables
      private javax.swing.JButton esc;
      private javax.swing.JButton feed;

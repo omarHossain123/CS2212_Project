@@ -37,12 +37,12 @@ public class InventoryGUI extends javax.swing.JFrame {
      * 
      * @param current The name of the current pet selected by the user.
      */
-    public InventoryGUI(String current) {
+    public InventoryGUI(String current, Inventory inventory) {
         // Initializations;
         toPurchase = "";
         howMuch = 0;
         currentPet = current;
-        inventory = new Inventory(current,10000); //EDIT LATER*************
+        this.inventory = inventory;
         setFontForAllComponents();
         initComponents();
         applyMonochromaticPastelTheme();

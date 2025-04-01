@@ -265,8 +265,12 @@ public class PetSelection {
         okButton.addActionListener(e -> {
             String name = nameField.getText().trim();
             if (!name.isEmpty()) {
-                Pet newPet = new Pet(name, pet.getType(), pet.getHealth(), pet.getHappiness(), 
-                    pet.getSleep(), pet.getHunger(), pet.getPetImage().toString());
+                Pet newPet = new Pet(name, pet.getType(), 
+                (int)pet.getHealth(), 
+                (int)pet.getHappiness(), 
+                (int)pet.getSleep(), 
+                (int)pet.getHunger(), 
+                pet.getPetImage().toString());
                 result[0] = newPet;
                 nameDialog.dispose();
             } else {

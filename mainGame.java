@@ -28,6 +28,7 @@ import javax.swing.JComponent;
   * @author Jacob
   */
  public class mainGame extends javax.swing.JFrame {
+    public Game game;
      
      String basePath = "assets\\images\\petSprites";
  
@@ -43,7 +44,7 @@ import javax.swing.JComponent;
       public mainGame(Pet selectedPet) {
 
         this.currentPet = selectedPet;
-
+        game = new Game(selectedPet.getType());
         initComponents();
 
         addSaveButton();
@@ -97,8 +98,13 @@ import javax.swing.JComponent;
                  // label.setText("Updated at " + System.currentTimeMillis());
  
                  // Update the game score (example: increment by 1)
-                 gameScore += 1;
- 
+                 game.checkState();
+                 game.increaseScore(1);
+                 gameScore = (int) game.getScore();
+                 
+                    game.gameDecrement();
+                 
+                 System.out.println("SysoutL " + game.getPet().getHappiness());
                  // Update the score label with leading zeros (17 digits)
                  scoreLabel.setText(String.format("%017d", gameScore));
              }
@@ -447,7 +453,7 @@ import javax.swing.JComponent;
  
      private void commandsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandsActionPerformed
          // TODO add your handling code here:
-         commands actions = new commands();
+         commands actions = new commands(game);
      
          // Set location relative to main game window
          actions.setLocation(
@@ -464,7 +470,11 @@ import javax.swing.JComponent;
      }//GEN-LAST:event_storeActionPerformed
  
      private void inventoryActionPerformed(java.awt.event.ActionEvent evt) {
-        InventoryGUI inventoryWindow = new InventoryGUI(currentPet.getName());
+        game.getInventory().setScore(game.getScore());
+        float tempScore = (float) game.getInventory().getScore();
+        InventoryGUI inventoryWindow = new InventoryGUI(game.petType(), game.getInventory());
+        tempScore = game.getScore() - tempScore;
+        game.increaseScore(-tempScore);
         // Set the default close operation to DISPOSE_ON_CLOSE instead of EXIT_ON_CLOSE
         inventoryWindow.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         // Center inventory window relative to the main game window
