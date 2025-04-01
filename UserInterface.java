@@ -76,7 +76,7 @@ public class UserInterface {
                 }
             });            
         });
-
+    
         mainMenu.getContinueGameButton().addActionListener(e -> {
             // Check parental controls before loading game
             if (!ParentalControls.isPlayingAllowed()) {
@@ -86,20 +86,17 @@ public class UserInterface {
             
             List<String> saveFiles = getSaveFiles();
             if (saveFiles.isEmpty()) {
-                JOptionPane.showMessageDialog(mainMenu,
+                // Use StyledDialog instead of JOptionPane
+                StyledDialog.showInformationDialog(mainMenu,
                         "No saved games found. Please start a new game.",
-                        "No Saves Found",
-                        JOptionPane.INFORMATION_MESSAGE);
+                        "No Saves Found");
             } else {
-                // Show save file selection dialog
-                String selectedSave = (String) JOptionPane.showInputDialog(
+                // Use our new styled save selector
+                String selectedSave = StyledSaveSelector.showDialog(
                         mainMenu,
-                        "Select a saved game to load:",
+                        "Choose a saved pet to continue your adventure:",
                         "Load Game",
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        saveFiles.toArray(),
-                        saveFiles.get(0));
+                        saveFiles);
                 
                 if (selectedSave != null) {
                     currentSaveFile = selectedSave;
@@ -120,9 +117,9 @@ public class UserInterface {
                 }
             }
         });
-
-        mainMenu.setVisible(true);
-    }
+        
+            mainMenu.setVisible(true);
+        }
     
     /**
      * Shows a message when play is restricted by parental controls
@@ -140,12 +137,12 @@ public class UserInterface {
                     endTime.format(ParentalControls.TIME_FORMATTER);
         }
         
-        JOptionPane.showMessageDialog(parent,
+        // Use StyledDialog instead of JOptionPane
+        StyledDialog.showWarningDialog(parent,
             "Outside of allowed play time hours.\n" +
             "You can only play during the hours: " + timeRange + "\n" +
             "Please try again during your allowed play time.",
-            "Play Time Restriction",
-            JOptionPane.WARNING_MESSAGE);
+            "Play Time Restriction");
     }
 
     /**
@@ -154,11 +151,11 @@ public class UserInterface {
      * @return The save file name entered by user, or null if canceled
      */
     private static String promptForSaveName(String defaultName) {
-        String saveName = JOptionPane.showInputDialog(
+        String saveName = StyledDialog.showInputDialog(
                 null,
-                "Enter a name for this save file:",
-                "Save Game",
-                JOptionPane.QUESTION_MESSAGE);
+                "What would you like to name your save file?",
+                "Name Your Save File",
+                defaultName);
         
         if (saveName == null || saveName.trim().isEmpty()) {
             return null;
@@ -170,11 +167,10 @@ public class UserInterface {
         // Check if save already exists
         File saveFile = new File(SAVES_DIRECTORY + File.separator + saveName + ".dat");
         if (saveFile.exists()) {
-            int option = JOptionPane.showConfirmDialog(
+            int option = StyledDialog.showConfirmDialog(
                     null,
                     "A save with this name already exists. Overwrite?",
-                    "Save Exists",
-                    JOptionPane.YES_NO_CANCEL_OPTION);
+                    "Save Exists");
             
             if (option == JOptionPane.YES_OPTION) {
                 return saveName;
@@ -223,17 +219,15 @@ public class UserInterface {
             oos.writeObject(currentPet);
             System.out.println("Game saved successfully to " + savePath);
             
-            // Show confirmation dialog
-            JOptionPane.showMessageDialog(null,
+            // Show confirmation dialog with StyledDialog
+            StyledDialog.showInformationDialog(null,
                     "Game saved successfully!",
-                    "Save Complete",
-                    JOptionPane.INFORMATION_MESSAGE);
+                    "Save Complete");
         } catch (IOException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null,
+            StyledDialog.showErrorDialog(null,
                     "Failed to save game: " + e.getMessage(),
-                    "Save Error",
-                    JOptionPane.ERROR_MESSAGE);
+                    "Save Error");
         }
     }
 
@@ -255,10 +249,9 @@ public class UserInterface {
             return true;
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null,
+            StyledDialog.showErrorDialog(null,
                     "Failed to load game: " + e.getMessage(),
-                    "Load Error",
-                    JOptionPane.ERROR_MESSAGE);
+                    "Load Error");
             return false;
         }
     }
