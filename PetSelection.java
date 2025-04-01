@@ -25,6 +25,9 @@ public class PetSelection {
         JFrame frame = new JFrame("Select Your Pet");
         frame.setSize(800, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
         
         // Create a custom panel with background image
         JPanel backgroundPanel = new JPanel() {
