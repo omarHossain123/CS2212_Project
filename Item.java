@@ -1,5 +1,3 @@
-
-
 /**
  * The Item class represents an item in the player's inventory.
  * Each item has a type, a label, a hunger bonus, and a happiness bonus.
@@ -41,7 +39,7 @@ public class Item {
                 this.numberItem = numberItem;
                 this.label = "Popsicle";
                 this.hungerBonus = 10;
-                this.happinessBonus = 2.5;
+                this.happinessBonus = 3;
                 break;
             case 2: 
                 this.numberItem = numberItem;
@@ -64,7 +62,7 @@ public class Item {
             case 5: 
                 this.numberItem = numberItem;
                 this.label = "Gift";
-                this.hungerBonus = 2.5;
+                this.hungerBonus = 3;
                 this.happinessBonus = 40;
                 break;
             default:
@@ -113,10 +111,15 @@ public class Item {
 
     /**
      * Decreases the quantity of the item by 1, as long as there is at least 1 item available.
+     * @return If it successfully decreases or not.
      */
-    public void decreaseItem() {
+    public boolean decreaseItem() {
         if (numberItem > 0) {
             this.numberItem--;
+            return true;
+        }
+        else {
+            return false;
         }
     }
 

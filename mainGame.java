@@ -27,102 +27,115 @@ import javax.swing.JComponent;
   *
   * @author Jacob
   */
- public class mainGame extends javax.swing.JFrame {
+  public class mainGame extends javax.swing.JFrame {
+    public Game game;
      
-     String basePath = "assets\\images\\petSprites";
- 
-     private int gameScore = 0; // Add this as a class variable
+    String basePath = "assets\\images\\petSprites";
 
-     private Pet currentPet;
+    private int gameScore = 0; // Add this as a class variable
+    private Pet currentPet;
+    
+    // Add a Timer variable to access it globally
+    private Timer timer;
+    private boolean isPaused = false;
 
- 
- 
-     /**
-      * Creates new form mainMenu
-      */
-      public mainGame(Pet selectedPet) {
-
+    /**
+     * Creates new form mainMenu
+     */
+    public mainGame(Pet selectedPet) {
         this.currentPet = selectedPet;
-
+        game = new Game(selectedPet.getType());
         initComponents();
-
         addSaveButton();
+         
+        // Set the frame size explicitly to match your panel
+        this.setSize(1075, 680); // Width, Height (add extra for window decorations)
+         
+        // Sets the game application location in the middle of the screen
+        setLocationRelativeTo(null);
 
-         
-         // Set the frame size explicitly to match your panel
-         this.setSize(1075, 680); // Width, Height (add extra for window decorations)
-         
-         // Sets the game application location in the middle of the screen
-         setLocationRelativeTo(null);
- 
-         // Load the initial pet image
-         loadPetImage();
-         
- 
-          // Initialize the score label with starting value
-         scoreLabel.setText(String.format("%017d", gameScore));
+        // Load the initial pet image
+        loadPetImage();
+        
+        // Initialize the score label with starting value
+        scoreLabel.setText(String.format("%017d", gameScore));
           
-         /**
-         * Creates and starts a Swing Timer that periodically updates the game score.
-         * The timer triggers every 0.5 seconds (500 milliseconds) and performs the following actions:
-         * <ul>
-         *   <li>Increments the game score by 1 points</li>
-         *   <li>Updates the score display label with the new value</li>
-         *   <li>Formats the score to display as 17 digits with leading zeros</li>
-         * </ul>
-         * 
-         * <p>The timer is set to repeat indefinitely until explicitly stopped. The score update
-         * occurs on the Event Dispatch Thread, making it safe for Swing UI operations.</p>
-         * 
-         * <p>Example usage:
-         * <pre>
-         * // Timer updates score every 0.5 seconds
-         * Timer scoreTimer = createScoreTimer();
-         * scoreTimer.start();
-         * </pre>
-         * </p>
-         * 
-         * @return A configured Timer instance that handles score updates. The timer must be
-         *         started explicitly by calling {@link javax.swing.Timer#start()}.
-         * 
-         * @see javax.swing.Timer
-         * @see java.awt.event.ActionListener
-         * @see #gameScore  The game's score variable being modified
-         * @see #scoreLabel  The JLabel displaying the score
+        // Create and start the score timer
+        timer = new Timer(500, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Update game state
+                game.checkState();
+                game.increaseScore(1);
+                gameScore = (int) game.getScore();
+                
+                // Update pet stats
+                game.gameDecrement();
+                
+                // Update progress bars to reflect current pet state
+                updateProgressBars();
+                
+                // Update the score label with leading zeros (17 digits)
+                scoreLabel.setText(String.format("%017d", gameScore));
+            }
+        });
+    
+        timer.setRepeats(true);
+        timer.start();
+        
+        /**
+         * Initialize progress bars to reflect the pet's current state
          */
-         Timer timer = new Timer(500, new ActionListener() {
-             @Override
-             public void actionPerformed(ActionEvent e) {
-                 // Update the test label
-                 // label.setText("Updated at " + System.currentTimeMillis());
- 
-                 // Update the game score (example: increment by 1)
-                 gameScore += 1;
- 
-                 // Update the score label with leading zeros (17 digits)
-                 scoreLabel.setText(String.format("%017d", gameScore));
-             }
-         });
-     
-         timer.setRepeats(true);
-         timer.start();
-         
-         /**
-          * Add if statement for depletion of progress bar
-          * If certain pet image is on the petImage label 
-          * Then changes the progression speeds to match the pets perks and debuffs
-          */
-         depleteProgressBar(sleepBar, 100, 1, 6000);
-         depleteProgressBar(happinessBar, 100, 1, 6000);
-         depleteProgressBar(hungerBar, 100, 1, 6000);
-         
-         setupKeyBindings();
-         
-         
- 
-     }
- 
-     private void loadPetImage() {
+        updateProgressBars();
+        
+        // Setup depletion rates based on pet type
+        setupDepleteProgressBars();
+        
+        setupKeyBindings();
+    }
+    
+    /**
+     * Updates all progress bars to reflect the current state of the pet.
+     * This method should be called whenever the pet's stats change.
+     */
+    private void updateProgressBars() {
+        Pet pet = game.getPet();
+        
+        // Calculate percentages for each stat
+        int healthPercent = (int)((pet.getHealth() / pet.getMaxHealth()) * 100);
+        int happinessPercent = (int)((pet.getHappiness() / pet.getMaxHappiness()) * 100);
+        int hungerPercent = (int)((pet.getHunger() / pet.getMaxHunger()) * 100);
+        int sleepPercent = (int)((pet.getSleep() / pet.getMaxSleep()) * 100);
+        
+        // Update progress bars
+        healthBar.setValue(healthPercent);
+        happinessBar.setValue(happinessPercent);
+        hungerBar.setValue(hungerPercent);
+        sleepBar.setValue(sleepPercent);
+        
+        // Refresh pet image based on state
+        refreshPetImage();
+    }
+    
+    /**
+     * Sets up the depletion rates for progress bars based on pet type
+     */
+    private void setupDepleteProgressBars() {
+        // Get depletion rates based on pet type
+        double sleepRate = 1.0;
+        double happinessRate = 1.0;
+        double hungerRate = 1.0;
+        
+        // Adjust rates based on pet type if needed
+        String petType = currentPet.getType();
+        
+        // Setup the progress bar depletion threads
+        depleteProgressBar(sleepBar, 100, 1, 6000);
+        depleteProgressBar(happinessBar, 100, 1, 6000);
+        depleteProgressBar(hungerBar, 100, 1, 6000);
+    }
+
+    private void loadPetImage() {
         // Get the image path from the current pet
         String imagePath = currentPet.getPetImage().getDescription();
         
@@ -143,65 +156,51 @@ import javax.swing.JComponent;
         }
     }
      
-     /**
-     * Sets up key bindings for the main game window. Specifically binds the ESC key
-     * to open the settings window when pressed. This uses Swing's key binding system
-     * which is more reliable than KeyListeners as it works even when components have focus.
-     * 
-     * <p>The binding is set for WHEN_IN_FOCUSED_WINDOW condition, meaning it will trigger
-     * when the ESC key is pressed anywhere within this window, regardless of which component
-     * has focus.</p>
-     * 
-     * <p>The action performed by the ESC key is to call the existing {@link #settingsActionPerformed}
-     * method, which displays the settings dialog.</p>
-     * 
-     * @see javax.swing.KeyStroke
-     * @see javax.swing.InputMap
-     * @see javax.swing.ActionMap
-     * @see #settingsActionPerformed(java.awt.event.ActionEvent)
+    /**
+     * Sets up key bindings for the main game window.
      */
-     private void setupKeyBindings() {
-         // Get the input map and action map for the content pane
-         JComponent contentPane = (JComponent) getContentPane();
-         InputMap inputMap = contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
-         ActionMap actionMap = contentPane.getActionMap();
-         
-         // Define the action for ESC key
-         Action escAction = new AbstractAction() {
-             @Override
-             public void actionPerformed(ActionEvent e) {
-                 settingsActionPerformed(null); // Call your existing settings action
-             }
-         };
-         
-         // Define the action for p key
-         Action pauseAction = new AbstractAction(){
-             @Override
-             public void actionPerformed(ActionEvent e){
-                 //togglePause();
-             }
-         };
-         
-         Action feedAction = new AbstractAction(){
-             @Override
-             public void actionPerformed(ActionEvent e){
-                 //feed();
-             }
-         };
-         
-         Action giftAction = new AbstractAction(){
-             @Override
-             public void actionPerformed(ActionEvent e){
-                 //giveGift();
-             }
-         };
-         
-         Action commandTab = new AbstractAction(){
-             @Override
-             public void actionPerformed(ActionEvent e){
-                 commandsActionPerformed(null);
-             }
-         };
+    private void setupKeyBindings() {
+        // Get the input map and action map for the content pane
+        JComponent contentPane = (JComponent) getContentPane();
+        InputMap inputMap = contentPane.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = contentPane.getActionMap();
+        
+        // Define the action for ESC key
+        Action escAction = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                settingsActionPerformed(null); 
+            }
+        };
+        
+        // Define the action for P key
+        Action pauseAction = new AbstractAction(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                togglePause();
+            }
+        };
+        
+        Action feedAction = new AbstractAction(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                feed();
+            }
+        };
+        
+        Action giftAction = new AbstractAction(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                giveGift();
+            }
+        };
+        
+        Action commandTab = new AbstractAction(){
+            @Override
+            public void actionPerformed(ActionEvent e){
+                commandsActionPerformed(null);
+            }
+        };
         
         // save game 
         Action saveAction = new AbstractAction() {
@@ -211,66 +210,133 @@ import javax.swing.JComponent;
             }
         };
 
-        // Ctrl+S tp save
+        // Ctrl+S to save
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_DOWN_MASK), "saveAction");
         actionMap.put("saveAction", saveAction);
 
-
-         // Bind the ESC key to the action
-         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escAction");
-         actionMap.put("escAction", escAction);
-         
-         // Bind the P key to the action
-         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), "pauseAction");
-         actionMap.put("pauseAction", pauseAction);
-         
-         // Bind the F key to the action
-         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F, 0), "feedAction");
-         actionMap.put("feedAction", feedAction);
-         
-         // Bind the G key to the action
-         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0), "giftAction");
-         actionMap.put("giftAction", giftAction);
-         
-         // Bind the C key to the action
-         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "commandTab");
-         actionMap.put("commandTab", commandTab);
- 
-     }
-     
-     public void refreshPetImage() {
-         loadPetImage();
-     }
-     
+        // Bind the ESC key to the action
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escAction");
+        actionMap.put("escAction", escAction);
+        
+        // Bind the P key to the action
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0), "pauseAction");
+        actionMap.put("pauseAction", pauseAction);
+        
+        // Bind the F key to the action
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F, 0), "feedAction");
+        actionMap.put("feedAction", feedAction);
+        
+        // Bind the G key to the action
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0), "giftAction");
+        actionMap.put("giftAction", giftAction);
+        
+        // Bind the C key to the action
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "commandTab");
+        actionMap.put("commandTab", commandTab);
+    }
     
-     /**
-      * Depletes specified JProgressBar from a given start value down to 0.
-      * Depletion occurs in decrements at a certain delay interval.
-      * 
-      * @param progressBar   The JProgressBar to update.
-      * @param startValue    The initial starting value of the progress bar.
-      * @param decrement     Value to decrement the progress bar on each step.
-      * @param delay         The delay in milliseconds between each decrement.
-      */
-     private void depleteProgressBar(JProgressBar progressBar, int startValue, int decrement, int delay) {
-         Thread t = new Thread(() -> {
-             for (int i = startValue; i >= 0; i -= decrement) {
-                 try {
-                     // Update pet image when progress changes
-                     if (i % 10 == 0) { // Update every 10% change for performance
-                         SwingUtilities.invokeLater(() -> loadPetImage());
-                     }
-                     Thread.sleep(delay);
-                 } catch (InterruptedException ex) {
-                     Logger.getLogger(mainGame.class.getName()).log(Level.SEVERE, null, ex);
-                     Thread.currentThread().interrupt(); // Restore interrupted status
-                 }
-             }
-             SwingUtilities.invokeLater(() -> loadPetImage());
-         });
-         t.start();
-     }
- 
+    /**
+     * Toggles the game pause state
+     */
+    private void togglePause() {
+        if (isPaused) {
+            timer.start();
+            isPaused = false;
+        } else {
+            timer.stop();
+            isPaused = true;
+        }
+    }
+    
+    /**
+     * Feeds the pet to increase hunger and happiness
+     */
+    private void feed() {
+        // Feed the pet
+        boolean fed = game.feed();
+        
+        if (fed) {
+            // Update progress bars to reflect changes
+            updateProgressBars();
+            // Optional: Add animation or sound effect
+        }
+    }
+    
+    /**
+     * Gives a gift to the pet to increase happiness
+     */
+    private void giveGift() {
+        // Give gift to pet
+        boolean gifted = game.giveGift();
+        
+        if (gifted) {
+            // Update progress bars to reflect changes
+            updateProgressBars();
+            // Optional: Add animation or sound effect
+        }
+    }
+    
+    /**
+     * Puts the pet to sleep to restore sleep stat
+     */
+    private void sleep() {
+        // Put pet to sleep
+        boolean sleeping = game.gotToBed();
+        
+        if (sleeping) {
+            // Update progress bars to reflect changes
+            updateProgressBars();
+            // Optional: Add animation or sound effect
+        }
+    }
+    
+    /**
+     * Takes the pet to vet to restore health
+     */
+    private void takeToVet() {
+        // Take pet to vet
+        boolean treated = game.takeToVet();
+        
+        if (treated) {
+            // Update progress bars to reflect changes
+            updateProgressBars();
+            // Optional: Add animation or sound effect
+        }
+    }
+    
+    public void refreshPetImage() {
+        loadPetImage();
+    }
+    
+    /**
+     * Depletes specified JProgressBar from a given start value down to 0.
+     * Depletion occurs in decrements at a certain delay interval.
+     * 
+     * @param progressBar   The JProgressBar to update.
+     * @param startValue    The initial starting value of the progress bar.
+     * @param decrement     Value to decrement the progress bar on each step.
+     * @param delay         The delay in milliseconds between each decrement.
+     */
+    private void depleteProgressBar(JProgressBar progressBar, int startValue, int decrement, int delay) {
+        Thread t = new Thread(() -> {
+            for (int i = startValue; i >= 0; i -= decrement) {
+                try {
+                    // Update pet image when progress changes
+                    if (i % 10 == 0) { // Update every 10% change for performance
+                        SwingUtilities.invokeLater(() -> loadPetImage());
+                    }
+                    Thread.sleep(delay);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(mainGame.class.getName()).log(Level.SEVERE, null, ex);
+                    Thread.currentThread().interrupt(); // Restore interrupted status
+                }
+            }
+            SwingUtilities.invokeLater(() -> loadPetImage());
+        });
+        t.start();
+    }
+
+  
      /**
       * This method is called from within the constructor to initialize the form.
       * WARNING: Do NOT modify this code. The content of this method is always
@@ -413,7 +479,7 @@ import javax.swing.JComponent;
          scoreLabel.setBounds(700, 20, 210, 32);
  
          jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-         jLabel3.setIcon(new javax.swing.ImageIcon("assets\\images\\Backgrounds\\background.png")); // NOI18N
+         jLabel3.setIcon(new javax.swing.ImageIcon("assets\\images\\Backgrounds\\Main_Menu.png")); // NOI18N
          jPanel1.add(jLabel3);
          jLabel3.setBounds(0, 0, 1060, 640);
  
@@ -445,26 +511,30 @@ import javax.swing.JComponent;
          exit.setVisible(true);
      }//GEN-LAST:event_settingsActionPerformed
  
-     private void commandsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_commandsActionPerformed
-         // TODO add your handling code here:
-         commands actions = new commands();
-     
-         // Set location relative to main game window
-         actions.setLocation(
-         this.getX(),  // X position of main game window
-         this.getY()   // Y position of main game window
-         );
- 
-         // Make it visible
-         actions.setVisible(true);
-     }//GEN-LAST:event_commandsActionPerformed
+     private void commandsActionPerformed(java.awt.event.ActionEvent evt) {
+        // Create commands window and pass the game instance
+        commands actions = new commands(game);
+    
+        // Set location relative to main game window
+        actions.setLocation(
+        this.getX(),  // X position of main game window
+        this.getY()   // Y position of main game window
+        );
+
+        // Make it visible
+        actions.setVisible(true);
+    }
  
      private void storeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_storeActionPerformed
          // TODO add your handling code here:
      }//GEN-LAST:event_storeActionPerformed
  
      private void inventoryActionPerformed(java.awt.event.ActionEvent evt) {
-        InventoryGUI inventoryWindow = new InventoryGUI(currentPet.getName());
+        game.getInventory().setScore(game.getScore());
+        float tempScore = (float) game.getInventory().getScore();
+        InventoryGUI inventoryWindow = new InventoryGUI(game.petType(), game.getInventory());
+        tempScore = (float) (game.getScore() - tempScore);
+        game.increaseScore(-tempScore);
         // Set the default close operation to DISPOSE_ON_CLOSE instead of EXIT_ON_CLOSE
         inventoryWindow.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         // Center inventory window relative to the main game window
