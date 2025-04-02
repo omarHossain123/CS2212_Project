@@ -1,11 +1,32 @@
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.InputMap;
+import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.KeyStroke;
+import javax.swing.SwingConstants;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 
 /**
  * Settings dialog that provides options to resume game, save game,
@@ -14,6 +35,15 @@ import javax.swing.KeyStroke;
  * @author Jacob
  */
 public class settings extends javax.swing.JFrame {
+    // Define warm, cozy color scheme to match main game
+    private final Color PANEL_BACKGROUND = new Color(230, 238, 213); // Soft green background
+    private final Color PANEL_GRADIENT_END = new Color(242, 245, 233); // Lighter green for gradient
+    private final Color BUTTON_COLOR = new Color(217, 188, 133);     // Warm beige
+    private final Color BUTTON_HOVER = new Color(227, 205, 159);     // Lighter beige for hover
+    private final Color TEXT_COLOR = new Color(90, 62, 44);          // Brown text
+    private final Color BORDER_COLOR = new Color(164, 116, 73);      // Brown border
+    private final Color TITLE_BACKGROUND = new Color(164, 116, 73, 180); // Semi-transparent brown
+    
     private mainGame parentGame;
 
     /**
@@ -22,17 +52,142 @@ public class settings extends javax.swing.JFrame {
      */
     public settings(javax.swing.JFrame parent) {
         this.parentGame = (mainGame) parent;
-        initComponents();
         
+        // Set frame properties
+        setUndecorated(true);
+        setSize(320, 450); // Make it slightly larger for better spacing
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setResizable(false);
+        
+        // Create custom UI
+        createUI();
+        
+        // Setup key bindings
         setupKeyBindings();
-        
-        // Set the frame size explicitly 
-        this.setSize(270, 400);
         
         // Center the window relative to parent
         if (parent != null) {
             setLocationRelativeTo(parent);
         }
+    }
+    
+    /**
+     * Creates the custom UI for the settings window
+     */
+    private void createUI() {
+        // Create main panel with gradient background
+        JPanel mainPanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                
+                // Create a gradient from top to bottom
+                GradientPaint gradient = new GradientPaint(
+                    0, 0, PANEL_BACKGROUND,
+                    0, getHeight(), PANEL_GRADIENT_END);
+                g2d.setPaint(gradient);
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        mainPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BORDER_COLOR, 3),
+            BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        ));
+        
+        // Create title panel
+        JPanel titlePanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2d.setColor(TITLE_BACKGROUND);
+                g2d.fillRoundRect(0, 0, getWidth(), getHeight(), 15, 15);
+            }
+        };
+        titlePanel.setOpaque(false);
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        
+        // Title label
+        JLabel titleLabel = new JLabel("Game Settings", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Comic Sans MS", Font.BOLD, 24));
+        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        titlePanel.add(titleLabel);
+        
+        // Create buttons panel
+        JPanel buttonsPanel = new JPanel();
+        buttonsPanel.setOpaque(false);
+        buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
+        buttonsPanel.setBorder(BorderFactory.createEmptyBorder(30, 0, 0, 0));
+        
+        // Create buttons with consistent styling
+        JButton resumeButton = createStyledButton("Resume Game");
+        resumeButton.addActionListener(e -> resumeActionPerformed(e));
+        
+        JButton saveButton = createStyledButton("Save Game");
+        saveButton.addActionListener(e -> saveGameActionPerformed(e));
+        
+        JButton menuButton = createStyledButton("Main Menu");
+        menuButton.addActionListener(e -> mainMenuActionPerformed(e));
+        
+        JButton exitButton = createStyledButton("Exit Game");
+        exitButton.addActionListener(e -> exitActionPerformed(e));
+        
+        // Add buttons to panel with spacing
+        buttonsPanel.add(resumeButton);
+        buttonsPanel.add(Box.createVerticalStrut(20));
+        buttonsPanel.add(saveButton);
+        buttonsPanel.add(Box.createVerticalStrut(20));
+        buttonsPanel.add(menuButton);
+        buttonsPanel.add(Box.createVerticalStrut(20));
+        buttonsPanel.add(exitButton);
+        
+        // Add components to main panel
+        mainPanel.add(titlePanel, BorderLayout.NORTH);
+        mainPanel.add(buttonsPanel, BorderLayout.CENTER);
+        
+        // Set content pane
+        setContentPane(mainPanel);
+    }
+    
+    /**
+     * Creates a styled button with text
+     */
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setFont(new Font("Comic Sans MS", Font.BOLD, 18));
+        button.setForeground(TEXT_COLOR);
+        button.setBackground(BUTTON_COLOR);
+        button.setFocusPainted(false);
+        button.setBorderPainted(true);
+        button.setContentAreaFilled(true);
+        button.setMaximumSize(new Dimension(250, 60));
+        button.setPreferredSize(new Dimension(250, 60));
+        button.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        
+        // Create a rounded border with a wooden fence style
+        button.setBorder(new CompoundBorder(
+            new LineBorder(BORDER_COLOR, 2, true),
+            new EmptyBorder(10, 20, 10, 20)
+        ));
+        
+        // Add hover effect
+        button.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                button.setBackground(BUTTON_HOVER);
+            }
+            
+            @Override
+            public void mouseExited(MouseEvent e) {
+                button.setBackground(BUTTON_COLOR);
+            }
+        });
+        
+        return button;
     }
     
     /**
@@ -55,99 +210,16 @@ public class settings extends javax.swing.JFrame {
         inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escAction");
         actionMap.put("escAction", escAction);
     }
-    
-    /**
-     * This method is called from within the constructor to initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is always
-     * regenerated by the Form Editor.
-     */
-    @SuppressWarnings("unchecked")
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
-    private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        resume = new javax.swing.JButton();
-        saveGame = new javax.swing.JButton();
-        mainMenu = new javax.swing.JButton();
-        exit = new javax.swing.JButton();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setUndecorated(true);
-        setResizable(false);
-
-        jPanel1.setBackground(new java.awt.Color(240, 240, 240));
-        jPanel1.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0), 2));
-        jPanel1.setLayout(null);
-
-        resume.setFont(new java.awt.Font("Comic Sans MS", 1, 18));
-        resume.setText("Resume Game");
-        resume.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                resumeActionPerformed(evt);
-            }
-        });
-        jPanel1.add(resume);
-        resume.setBounds(50, 70, 170, 50);
-
-        saveGame.setFont(new java.awt.Font("Comic Sans MS", 1, 18));
-        saveGame.setText("Save Game");
-        saveGame.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                saveGameActionPerformed(evt);
-            }
-        });
-        jPanel1.add(saveGame);
-        saveGame.setBounds(50, 140, 170, 50);
-
-        mainMenu.setFont(new java.awt.Font("Comic Sans MS", 1, 18));
-        mainMenu.setText("Main Menu");
-        mainMenu.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                mainMenuActionPerformed(evt);
-            }
-        });
-        jPanel1.add(mainMenu);
-        mainMenu.setBounds(50, 210, 170, 50);
-
-        exit.setFont(new java.awt.Font("Comic Sans MS", 1, 18));
-        exit.setText("Exit Game");
-        exit.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exitActionPerformed(evt);
-            }
-        });
-        jPanel1.add(exit);
-        exit.setBounds(50, 280, 170, 50);
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 401, Short.MAX_VALUE)
-        );
-
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
-
-    private void resumeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_resumeActionPerformed
+    private void resumeActionPerformed(java.awt.event.ActionEvent evt) {
         // Close the settings window
         dispose();
-    }//GEN-LAST:event_resumeActionPerformed
+    }
 
-    private void saveGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_saveGameActionPerformed
+    private void saveGameActionPerformed(java.awt.event.ActionEvent evt) {
         // Call the save game function from UserInterface
         UserInterface.saveCurrentGame();
-        
-        // Show a small confirmation message
-        javax.swing.JOptionPane.showMessageDialog(this,
-            "Game saved successfully!",
-            "Save Game",
-            javax.swing.JOptionPane.INFORMATION_MESSAGE);
-    }//GEN-LAST:event_saveGameActionPerformed
+    }
 
     private void mainMenuActionPerformed(java.awt.event.ActionEvent evt) {
         // Close the current game window
@@ -162,23 +234,15 @@ public class settings extends javax.swing.JFrame {
         UserInterface.showMainMenu();
     }
 
-    private void exitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitActionPerformed
+    private void exitActionPerformed(java.awt.event.ActionEvent evt) {
         // Ask for confirmation before exiting
-        int confirmed = javax.swing.JOptionPane.showConfirmDialog(this,
+        int confirmed = JOptionPane.showConfirmDialog(this,
             "Are you sure you want to exit the game?",
             "Exit Game",
-            javax.swing.JOptionPane.YES_NO_OPTION);
+            JOptionPane.YES_NO_OPTION);
             
-        if (confirmed == javax.swing.JOptionPane.YES_OPTION) {
+        if (confirmed == JOptionPane.YES_OPTION) {
             System.exit(0);
         }
-    }//GEN-LAST:event_exitActionPerformed
-
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton exit;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JButton mainMenu;
-    private javax.swing.JButton resume;
-    private javax.swing.JButton saveGame;
-    // End of variables declaration//GEN-END:variables
+    }
 }

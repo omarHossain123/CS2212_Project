@@ -5,9 +5,14 @@
 
 
  import java.awt.Image;
+ import java.awt.Font;
  import java.awt.event.ActionEvent;
  import java.awt.event.ActionListener;
  import java.awt.event.KeyEvent;
+ import java.awt.event.MouseAdapter;
+ import java.awt.event.MouseEvent;
+ import java.awt.event.ComponentAdapter;
+ import java.awt.event.ComponentEvent;
  import java.util.logging.Level;
  import java.util.logging.Logger;
  import javax.swing.AbstractAction;
@@ -15,12 +20,16 @@
  import javax.swing.ActionMap;
  import javax.swing.ImageIcon;
  import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JComponent;
+ import javax.swing.JButton;
+ import javax.swing.JComponent;
  import javax.swing.JProgressBar;
  import javax.swing.KeyStroke;
  import javax.swing.SwingUtilities;
  import javax.swing.Timer;
+ import java.awt.Dimension;
+ import java.awt.GraphicsDevice;
+ import java.awt.GraphicsEnvironment;
+import javax.swing.JFrame;
   
  
  /**
@@ -68,12 +77,18 @@ import javax.swing.JComponent;
         // Initialize the UI components
         initComponents();
         addSaveButton();
+
+        // Set window to full screen on startup
+        this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         
-        // Set the frame size explicitly to match your panel
-        this.setSize(1075, 680); // Width, Height (add extra for window decorations)
-        
-        // Sets the game application location in the middle of the screen
-        setLocationRelativeTo(null);
+        // Add component listener to handle resizing
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                // Ensure background and components adjust to the new size
+                adaptUIToWindowSize();
+            }
+        });
         
         // Load the initial pet image
         loadPetImage();
@@ -82,7 +97,7 @@ import javax.swing.JComponent;
         gameScore = (int) game.getScore();
         scoreLabel.setText(String.format("%017d", gameScore));
         
-        /**
+    /**
      * Timer action listener that handles pet state and image updates
      */
     // Create and start the score timer
@@ -148,6 +163,127 @@ import javax.swing.JComponent;
         setupDepleteProgressBars();
         
         setupKeyBindings();
+        
+        // Adjust UI to fit current window size on startup
+        adaptUIToWindowSize();
+    }
+    
+    /**
+     * Adjusts the UI elements to fit the current window size
+     */
+    private void adaptUIToWindowSize() {
+        // Get the current window dimensions
+        int width = getWidth();
+        int height = getHeight();
+        
+        // Resize the background image
+        resizeBackground();
+        
+        // Reposition elements
+        repositionElements(width, height);
+    }
+
+    /**
+     * Resizes the background image to fill the window
+     */
+    private void resizeBackground() {
+        if (jLabel3 != null) {
+            // Get the original background image
+            ImageIcon originalIcon = new ImageIcon("assets\\images\\Backgrounds\\Main_Living.png");
+            Image originalImage = originalIcon.getImage();
+            
+            // Get the current size of the panel
+            int width = jPanel1.getWidth();
+            int height = jPanel1.getHeight();
+            
+            if (width > 0 && height > 0) {
+                // Scale the image to fill the panel
+                Image scaledImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                
+                // Update the label with the scaled image
+                jLabel3.setIcon(new ImageIcon(scaledImage));
+                jLabel3.setBounds(0, 0, width, height);
+            }
+        }
+    }
+
+    /**
+     * Repositions UI elements based on the window dimensions
+     */
+    private void repositionElements(int width, int height) {
+        // Center the pet image
+        if (petImage != null) {
+            int petX = (width - petImage.getWidth()) / 2;
+            int petY = (height - petImage.getHeight()) / 2 - 50; // Slightly above center
+            petImage.setLocation(petX, petY);
+        }
+        
+        // Position progress bars at the bottom but higher up
+        int progressBarHeight = 40;
+        int progressBarPadding = 6;
+        int extraBottomSpace = 50; // Extra space from the bottom
+
+        // Position the health bar higher
+        if (healthBar != null) {
+            healthBar.setBounds(
+                progressBarPadding, 
+                height - progressBarHeight - progressBarPadding - extraBottomSpace, 
+                width - (2 * progressBarPadding), 
+                progressBarHeight
+            );
+        }
+        
+        // Calculate widths for the three upper bars (equal width)
+        int smallBarWidth = (width - (4 * progressBarPadding)) / 3;
+        
+        // Position the sleep bar on the left (higher up)
+        if (sleepBar != null) {
+            sleepBar.setBounds(
+                progressBarPadding, 
+                height - (2 * progressBarHeight) - (2 * progressBarPadding) - extraBottomSpace, 
+                smallBarWidth, 
+                progressBarHeight
+            );
+        }
+        
+        // Position the happiness bar in the middle (higher up)
+        if (happinessBar != null) {
+            happinessBar.setBounds(
+                progressBarPadding * 2 + smallBarWidth, 
+                height - (2 * progressBarHeight) - (2 * progressBarPadding) - extraBottomSpace, 
+                smallBarWidth, 
+                progressBarHeight
+            );
+        }
+        
+        // Position the hunger bar on the right (higher up)
+        if (hungerBar != null) {
+            hungerBar.setBounds(
+                progressBarPadding * 3 + (2 * smallBarWidth), 
+                height - (2 * progressBarHeight) - (2 * progressBarPadding) - extraBottomSpace, 
+                smallBarWidth, 
+                progressBarHeight
+            );
+        }
+        
+        // Position the score label and text more to the left
+        if (jLabel2 != null && scoreLabel != null) {
+            int scoreLabelWidth = 210;
+            int scoreLabelHeight = 32;
+            int scoreLabelX = width - scoreLabelWidth - 120; 
+            
+            jLabel2.setBounds(scoreLabelX - 60, 10, 60, 50);
+            scoreLabel.setBounds(scoreLabelX, 20, scoreLabelWidth, scoreLabelHeight);
+        }
+        
+        // Position the settings button more to the left
+        if (settings != null) {
+            settings.setBounds(width - 100, 6, 60, 60); // More to the left
+        }
+        
+        // Position the buttons
+        if (commands != null) commands.setBounds(10, 10, 100, 40);
+        if (inventory != null) inventory.setBounds(10, 60, 100, 40);
     }
     
     /**
@@ -265,7 +401,7 @@ import javax.swing.JComponent;
             }
         };
         
-        Action commandTab = new AbstractAction(){
+        Action commandAction = new AbstractAction(){
             @Override
             public void actionPerformed(ActionEvent e){
                 commandsActionPerformed(null);
@@ -301,8 +437,8 @@ import javax.swing.JComponent;
         actionMap.put("giftAction", giftAction);
         
         // Bind the C key to the action
-        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "commandTab");
-        actionMap.put("commandTab", commandTab);
+        inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "commandAction");
+        actionMap.put("commandAction", commandAction);
     }
     
     /**
@@ -421,158 +557,163 @@ import javax.swing.JComponent;
      // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
      private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
         
+        // Create the Commands button with styling
+        commands = new javax.swing.JButton("Commands");
+        commands.setFont(new java.awt.Font("Comic Sans MS", Font.BOLD, 12));
+        commands.setBackground(new java.awt.Color(217, 188, 133)); // Warm beige color
+        commands.setForeground(new java.awt.Color(90, 62, 44)); // Brown text color
+        commands.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            new javax.swing.border.LineBorder(new java.awt.Color(164, 116, 73), 2, true), // Brown border
+            javax.swing.BorderFactory.createEmptyBorder(6, 10, 6, 10))); // Padding
+        commands.setFocusPainted(false);
+        commands.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                commandsActionPerformed(evt);
+            }
+        });
+        // Add hover effect
+        commands.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                commands.setBackground(new java.awt.Color(227, 205, 159)); // Lighter color on hover
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                commands.setBackground(new java.awt.Color(217, 188, 133)); // Back to original color
+            }
+        });
+        
+        // Create the Shop button with styling
+        inventory = new javax.swing.JButton("Shop");
+        inventory.setFont(new java.awt.Font("Comic Sans MS", Font.BOLD, 12));
+        inventory.setBackground(new java.awt.Color(217, 188, 133)); // Warm beige color
+        inventory.setForeground(new java.awt.Color(90, 62, 44)); // Brown text color
+        inventory.setBorder(javax.swing.BorderFactory.createCompoundBorder(
+            new javax.swing.border.LineBorder(new java.awt.Color(164, 116, 73), 2, true), // Brown border
+            javax.swing.BorderFactory.createEmptyBorder(6, 10, 6, 10))); // Padding
+        inventory.setFocusPainted(false);
+        inventory.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                inventoryActionPerformed(evt);
+            }
+        });
+        // Add hover effect
+        inventory.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                inventory.setBackground(new java.awt.Color(227, 205, 159)); // Lighter color on hover
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                inventory.setBackground(new java.awt.Color(217, 188, 133)); // Back to original color
+            }
+        });
+        
+        settings = new javax.swing.JButton();
+        healthBar = new javax.swing.JProgressBar();
+        hungerBar = new javax.swing.JProgressBar();
+        happinessBar = new javax.swing.JProgressBar();
+        sleepBar = new javax.swing.JProgressBar();
+        petImage = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        scoreLabel = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
  
-         jPanel1 = new javax.swing.JPanel();
-         commands = new javax.swing.JButton();
-         store = new javax.swing.JButton();
-         petChange = new javax.swing.JButton();
-         inventory = new javax.swing.JButton();
-         settings = new javax.swing.JButton();
-         healthBar = new javax.swing.JProgressBar();
-         hungerBar = new javax.swing.JProgressBar();
-         happinessBar = new javax.swing.JProgressBar();
-         sleepBar = new javax.swing.JProgressBar();
-         petImage = new javax.swing.JLabel();
-         jLabel2 = new javax.swing.JLabel();
-         scoreLabel = new javax.swing.JLabel();
-         jLabel3 = new javax.swing.JLabel();
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
  
-         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        jPanel1.setLayout(null);
  
-         jPanel1.setLayout(null);
+        jPanel1.add(commands);
+        commands.setBounds(10, 10, 100, 40);
  
-         commands.setIcon(new javax.swing.ImageIcon("assets\\images\\uiElements\\mainGameButtons\\stroller.png")); // NOI18N
-         commands.setBorderPainted(false);
-         commands.setContentAreaFilled(false);
-         commands.addActionListener(new java.awt.event.ActionListener() {
-             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                 commandsActionPerformed(evt);
-             }
-         });
-         jPanel1.add(commands);
-         commands.setBounds(6, 6, 60, 60);
+        jPanel1.add(inventory);
+        inventory.setBounds(10, 60, 100, 40);
  
-         store.setIcon(new javax.swing.ImageIcon("assets\\images\\uiElements\\mainGameButtons\\shopping_basket.png")); // NOI18N
-         store.setBorderPainted(false);
-         store.setContentAreaFilled(false);
-         store.addActionListener(new java.awt.event.ActionListener() {
-             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                 storeActionPerformed(evt);
-             }
-         });
-         jPanel1.add(store);
-         store.setBounds(10, 70, 60, 60);
+        settings.setIcon(new javax.swing.ImageIcon("assets\\images\\uiElements\\mainGameButtons\\settings.png")); // NOI18N
+        settings.setBorderPainted(false);
+        settings.setContentAreaFilled(false);
+        settings.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                settingsActionPerformed(evt);
+            }
+        });
+        jPanel1.add(settings);
+        settings.setBounds(994, 6, 60, 60);
  
-         petChange.setIcon(new javax.swing.ImageIcon("assets\\images\\uiElements\\mainGameButtons\\pawprint.png")); // NOI18N
-         petChange.setBorderPainted(false);
-         petChange.setContentAreaFilled(false);
-         petChange.addActionListener(new java.awt.event.ActionListener() {
-             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                 petChangeActionPerformed(evt);
-             }
-         });
-         jPanel1.add(petChange);
-         petChange.setBounds(10, 130, 60, 60);
+        healthBar.setBackground(new java.awt.Color(153, 153, 153));
+        healthBar.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
+        healthBar.setForeground(new java.awt.Color(0, 204, 0));
+        healthBar.setValue(100);
+        healthBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        healthBar.setString("Health");
+        healthBar.setStringPainted(true);
+        jPanel1.add(healthBar);
+        healthBar.setBounds(6, 591, 1048, 40);
  
-         inventory.setIcon(new javax.swing.ImageIcon("assets\\images\\uiElements\\mainGameButtons\\backpack.png")); // NOI18N
-         inventory.setBorderPainted(false);
-         inventory.setContentAreaFilled(false);
-         inventory.addActionListener(new java.awt.event.ActionListener() {
-             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                 inventoryActionPerformed(evt);
-             }
-         });
-         jPanel1.add(inventory);
-         inventory.setBounds(10, 190, 60, 60);
+        hungerBar.setBackground(new java.awt.Color(153, 153, 153));
+        hungerBar.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
+        hungerBar.setForeground(new java.awt.Color(102, 51, 0));
+        hungerBar.setValue(100);
+        hungerBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        hungerBar.setString("Hunger");
+        hungerBar.setStringPainted(true);
+        jPanel1.add(hungerBar);
+        hungerBar.setBounds(706, 545, 348, 40);
  
-         settings.setIcon(new javax.swing.ImageIcon("assets\\images\\uiElements\\mainGameButtons\\settings.png")); // NOI18N
-         settings.setBorderPainted(false);
-         settings.setContentAreaFilled(false);
-         settings.addActionListener(new java.awt.event.ActionListener() {
-             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                 settingsActionPerformed(evt);
-             }
-         });
-         jPanel1.add(settings);
-         settings.setBounds(994, 6, 60, 60);
+        happinessBar.setBackground(new java.awt.Color(153, 153, 153));
+        happinessBar.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
+        happinessBar.setForeground(new java.awt.Color(255, 0, 0));
+        happinessBar.setValue(100);
+        happinessBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        happinessBar.setString("Happiness");
+        happinessBar.setStringPainted(true);
+        jPanel1.add(happinessBar);
+        happinessBar.setBounds(354, 545, 346, 40);
  
-         healthBar.setBackground(new java.awt.Color(153, 153, 153));
-         healthBar.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
-         healthBar.setForeground(new java.awt.Color(0, 204, 0));
-         healthBar.setValue(100);
-         healthBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-         healthBar.setString("Health");
-         healthBar.setStringPainted(true);
-         jPanel1.add(healthBar);
-         healthBar.setBounds(6, 591, 1048, 40);
+        sleepBar.setBackground(new java.awt.Color(153, 153, 153));
+        sleepBar.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
+        sleepBar.setForeground(new java.awt.Color(102, 153, 255));
+        sleepBar.setValue(100);
+        sleepBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        sleepBar.setString("Sleep");
+        sleepBar.setStringPainted(true);
+        jPanel1.add(sleepBar);
+        sleepBar.setBounds(6, 545, 342, 40);
  
-         hungerBar.setBackground(new java.awt.Color(153, 153, 153));
-         hungerBar.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
-         hungerBar.setForeground(new java.awt.Color(102, 51, 0));
-         hungerBar.setValue(100);
-         hungerBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-         hungerBar.setString("Hunger");
-         hungerBar.setStringPainted(true);
-         jPanel1.add(hungerBar);
-         hungerBar.setBounds(706, 545, 348, 40);
+        petImage.setText("jLabel1");
+        jPanel1.add(petImage);
+        petImage.setBounds(350, 210, 346, 320);
  
-         happinessBar.setBackground(new java.awt.Color(153, 153, 153));
-         happinessBar.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
-         happinessBar.setForeground(new java.awt.Color(255, 0, 0));
-         happinessBar.setValue(100);
-         happinessBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-         happinessBar.setString("Happiness");
-         happinessBar.setStringPainted(true);
-         jPanel1.add(happinessBar);
-         happinessBar.setBounds(354, 545, 346, 40);
+        jLabel2.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
+        jLabel2.setText("Score:");
+        jPanel1.add(jLabel2);
+        jLabel2.setBounds(710, 10, 60, 50);
  
-         sleepBar.setBackground(new java.awt.Color(153, 153, 153));
-         sleepBar.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
-         sleepBar.setForeground(new java.awt.Color(102, 153, 255));
-         sleepBar.setValue(100);
-         sleepBar.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-         sleepBar.setString("Sleep");
-         sleepBar.setStringPainted(true);
-         jPanel1.add(sleepBar);
-         sleepBar.setBounds(6, 545, 342, 40);
+        scoreLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
+        scoreLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
+        scoreLabel.setText("00000000000000000");
+        scoreLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
+        jPanel1.add(scoreLabel);
+        scoreLabel.setBounds(700, 20, 210, 32);
  
-         petImage.setText("jLabel1");
-         jPanel1.add(petImage);
-         petImage.setBounds(350, 210, 346, 320);
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel3.setIcon(new javax.swing.ImageIcon("assets\\images\\Backgrounds\\Main_Living.png")); // NOI18N
+        jPanel1.add(jLabel3);
+        jLabel3.setBounds(0, 0, 1060, 640);
  
-         jLabel2.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
-         jLabel2.setText("Score:");
-         jPanel1.add(jLabel2);
-         jLabel2.setBounds(710, 10, 60, 50);
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1060, Short.MAX_VALUE)
+                .addGap(1, 1, 1))
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 643, Short.MAX_VALUE)
+        );
  
-         scoreLabel.setFont(new java.awt.Font("Comic Sans MS", 1, 14)); // NOI18N
-         scoreLabel.setHorizontalAlignment(javax.swing.SwingConstants.TRAILING);
-         scoreLabel.setText("00000000000000000");
-         scoreLabel.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(0, 0, 0)));
-         jPanel1.add(scoreLabel);
-         scoreLabel.setBounds(700, 20, 210, 32);
- 
-         jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-         jLabel3.setIcon(new javax.swing.ImageIcon("assets\\images\\Backgrounds\\Main_Menu.png")); // NOI18N
-         jPanel1.add(jLabel3);
-         jLabel3.setBounds(0, 0, 1060, 640);
- 
-         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-         getContentPane().setLayout(layout);
-         layout.setHorizontalGroup(
-             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-             .addGroup(layout.createSequentialGroup()
-                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 1060, Short.MAX_VALUE)
-                 .addGap(1, 1, 1))
-         );
-         layout.setVerticalGroup(
-             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, 643, Short.MAX_VALUE)
-         );
- 
-         pack();
-     }// </editor-fold>//GEN-END:initComponents
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
 
     // save game 
     private void saveGameButtonActionPerformed(java.awt.event.ActionEvent evt) {
@@ -600,10 +741,6 @@ import javax.swing.JComponent;
         actions.setVisible(true);
     }
  
-     private void storeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_storeActionPerformed
-         // TODO add your handling code here:
-     }//GEN-LAST:event_storeActionPerformed
- 
      private void inventoryActionPerformed(java.awt.event.ActionEvent evt) {
         game.getInventory().setScore(game.getScore());
         float tempScore = (float) game.getInventory().getScore();
@@ -616,12 +753,8 @@ import javax.swing.JComponent;
         inventoryWindow.setLocationRelativeTo(this);
         inventoryWindow.setVisible(true);
     }
-    
-     private void petChangeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_petChangeActionPerformed
-         // TODO add your handling code here:
-     }//GEN-LAST:event_petChangeActionPerformed
 
-     private void addSaveButton() {
+    private void addSaveButton() {
         JButton saveButton = new JButton();
         saveButton.setIcon(new javax.swing.ImageIcon("assets\\images\\uiElements\\mainGameButtons\\save.png")); // Use a save icon
         saveButton.setBorderPainted(false);
@@ -631,11 +764,11 @@ import javax.swing.JComponent;
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 saveGameButtonActionPerformed(evt);
             }
-    });
+        });
 
-    jPanel1.add(saveButton);
-    saveButton.setBounds(994, 70, 60, 60); // Position it below the settings button
-}
+        jPanel1.add(saveButton);
+        saveButton.setBounds(994, 70, 60, 60); // Position it below the settings button
+    }
 
     private void setupRandomBlinking() {
         // Create a timer to occasionally make the pet blink
@@ -698,13 +831,9 @@ import javax.swing.JComponent;
      private javax.swing.JLabel jLabel2;
      private javax.swing.JLabel jLabel3;
      private javax.swing.JPanel jPanel1;
-     private javax.swing.JButton petChange;
      private javax.swing.JLabel petImage;
      private javax.swing.JLabel scoreLabel;
      private javax.swing.JButton settings;
      private javax.swing.JProgressBar sleepBar;
-     private javax.swing.JButton store;
-     
      // End of variables declaration//GEN-END:variables
  }
- 
