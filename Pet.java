@@ -376,7 +376,7 @@ public class Pet implements Serializable {
                     displayEmotion = "sad"; // Use sad image for dead state
                     break;
                 case "sleep":
-                    displayEmotion = "nervous"; // Use nervous for sleep state
+                    displayEmotion = "blink"; // Use nervous for sleep state
                     break;
                 case "hungry":
                     displayEmotion = "discontent"; // Use discontent for hungry state
@@ -387,6 +387,8 @@ public class Pet implements Serializable {
                 case "nervous":
                     displayEmotion = "nervous"; // Use nervous for nervous state
                     break;
+                case "vet":
+                    displayEmotion = "nervous"; // Use nervous for vet state
                 default:
                     // For default state, use the current emotion
                     displayEmotion = currentEmotion;

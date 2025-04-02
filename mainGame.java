@@ -720,6 +720,33 @@ import javax.swing.JFrame;
         UserInterface.saveCurrentGame();
     }
 
+    // to change background temporarily
+    public void changeBackground(String imagePath) {
+        if (jLabel3 != null) {
+            // Load the new background image
+            ImageIcon newBackground = new ImageIcon(imagePath);
+            Image originalImage = newBackground.getImage();
+            
+            // Get the current size of the panel
+            int width = jPanel1.getWidth();
+            int height = jPanel1.getHeight();
+            
+            if (width > 0 && height > 0) {
+                // Scale the image to fill the panel
+                Image scaledImage = originalImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                
+                // Update the label with the scaled image
+                jLabel3.setIcon(new ImageIcon(scaledImage));
+                jLabel3.setBounds(0, 0, width, height);
+            }
+        }
+    }
+
+    // Also add a method to restore the original background
+    public void restoreDefaultBackground() {
+        changeBackground("assets\\images\\Backgrounds\\Main_Living.png");
+    }
+
  
      private void settingsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_settingsActionPerformed
          // TODO add your handling code here:
@@ -787,17 +814,17 @@ import javax.swing.JFrame;
 
     private void setupRandomBlinking() {
         // Create a timer to occasionally make the pet blink
-        javax.swing.Timer blinkTimer = new javax.swing.Timer(3000, new ActionListener() { // Check every 7 seconds
+        javax.swing.Timer blinkTimer = new javax.swing.Timer(3000, new ActionListener() { 
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Only blink if in default state and not already showing an emotion
                 if (game.getPet().getState().equals("default") && 
                     game.getPet().getEmotion().equals("neutral")) {
                     
-                    // 30% chance to blink
+                    
                     if (Math.random() < 0.9) {
                         System.out.println("Random blink triggered");
-                        game.getPet().setEmotion("blink", 1000); // Blink for half a second
+                        game.getPet().setEmotion("blink", 1);
                         refreshPetImage(); // Update the image right away
                     }
                 }
@@ -819,8 +846,8 @@ import javax.swing.JFrame;
                     
                     // 20% chance to show a random idle animation
                     if (Math.random() < 0.2) {
-                        // Choose a random emotion from happy, nervous, or blush
-                        String[] idleEmotions = {"happy", "nervous", "blush"};
+                        // Choose a random emotion from happy, or blush
+                        String[] idleEmotions = {"happy", "blush"};
                         int randomIndex = (int)(Math.random() * idleEmotions.length);
                         String randomEmotion = idleEmotions[randomIndex];
                         
