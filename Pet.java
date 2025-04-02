@@ -139,7 +139,7 @@ import java.io.Serializable;
                 hungerRate = 0.7;
                 break;
                 case 3:
-                sleepRate = -10;
+                sleepRate = -0.4;
                 healthRate = 0;
                 happinessRate = 0.4;
                 hungerRate = 0.4;

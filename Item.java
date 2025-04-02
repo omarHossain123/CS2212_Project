@@ -32,38 +32,38 @@ public class Item {
             case 0: 
                 this.numberItem = numberItem;
                 this.label = "Orange";
-                this.hungerBonus = 5;
+                this.hungerBonus = 15;
                 this.happinessBonus = 0;
                 break;
             case 1: 
                 this.numberItem = numberItem;
                 this.label = "Popsicle";
-                this.hungerBonus = 10;
+                this.hungerBonus = 25;
                 this.happinessBonus = 3;
                 break;
             case 2: 
                 this.numberItem = numberItem;
                 this.label = "Cake";
-                this.hungerBonus = 30;
+                this.hungerBonus = 45;
                 this.happinessBonus = 10;
                 break;
             case 3: 
                 this.numberItem = numberItem;
                 this.label = "Cards";
                 this.hungerBonus = 0;
-                this.happinessBonus = 5;
+                this.happinessBonus = 15;
                 break;
             case 4: 
                 this.numberItem = numberItem;
                 this.label = "Ball";
                 this.hungerBonus = 0;
-                this.happinessBonus = 15;
+                this.happinessBonus = 30;
                 break;
             case 5: 
                 this.numberItem = numberItem;
                 this.label = "Gift";
                 this.hungerBonus = 3;
-                this.happinessBonus = 40;
+                this.happinessBonus = 45;
                 break;
             default:
                 this.numberItem = 0;

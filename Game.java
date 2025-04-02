@@ -128,7 +128,7 @@ public class Game {
      * Feeds the pet to increase hunger and potentially happiness
      * @return true if the pet was fed successfully, false if on cooldown
      */
-    public boolean feed() {
+    public boolean feed(int index) {
         long currentTime = System.currentTimeMillis();
         
         // Check if the action is on cooldown
@@ -137,14 +137,18 @@ public class Game {
             return false;
         }
         
-        // Increase hunger
-        pet.increaseHunger(15);
-        
-        // Small happiness boost from feeding
-        pet.increaseHappiness(5);
-        
-        // Update score
-        increaseScore(10);
+        double[] improve = inventory.useItem(index);
+        if((0 > improve[0])||(0 > improve[1])){
+            return false;
+
+        }
+        else{
+            pet.increaseHunger(improve[0]);
+            pet.increaseHappiness(improve[1]);
+            
+            
+        }
+
         
         // Set cooldown timer
         lastFeedTime = currentTime;
@@ -157,7 +161,7 @@ public class Game {
      * Gives a gift to the pet to increase happiness
      * @return true if the gift was given successfully, false if on cooldown
      */
-    public boolean giveGift() {
+    public boolean giveGift(int index) {
         long currentTime = System.currentTimeMillis();
         
         // Check if the action is on cooldown
@@ -167,11 +171,17 @@ public class Game {
         }
         
         // Significant happiness boost
-        pet.increaseHappiness(20);
-        
-        // Update score
-        increaseScore(15);
-        
+        double[] improve = inventory.useItem(index);
+        if((0 > improve[0])||(0 > improve[1])){
+            return false;
+
+        }
+        else{
+            pet.increaseHunger(improve[0]);
+            pet.increaseHappiness(improve[1]);
+            
+        }
+
         // Set cooldown timer
         lastGiftTime = currentTime;
         

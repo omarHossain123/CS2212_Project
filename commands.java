@@ -391,9 +391,10 @@
          // Different gifts might have different effects based on the selected gift type
          String giftType = button11Images[currentImageIndexGift];
          System.out.println("Giving gift: " + giftType);
+         System.out.println("Gift button pressed" + currentImageIndexGift);
          
          game.checkState();
-         if((game.validState() || game.getPet().getState() == "angry") && game.giveGift() ){
+         if((game.validState() || game.getPet().getState() == "angry") && game.giveGift(currentImageIndexGift+3) ){
              // Successfully gave gift to pet
              System.out.println("Gave a gift to the pet!");
              // You could add animation or sound effects here
@@ -411,7 +412,7 @@
          System.out.println("Feeding: " + foodType);
          
          game.checkState();
-         if((game.validState() || game.getPet().getState() == "angry") && game.feed() ){
+         if((game.validState() || game.getPet().getState() == "angry") && game.feed(currentImageIndexFood) ){
              // Successfully fed the pet
              System.out.println("Fed the pet!");
              // You could add animation or sound effects here

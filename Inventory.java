@@ -36,7 +36,7 @@ public class Inventory {
         }
 
         // Initialize locked pets array (only the first pet is unlocked initially).
-        this.isLockedPets = new boolean[]{false, true, true, true};
+        this.isLockedPets = new boolean[]{false, true, false, false};
         this.score = gameScore;
     }
 

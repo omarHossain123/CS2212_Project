@@ -281,7 +281,7 @@ import javax.swing.JComponent;
      */
     private void feed() {
         // Feed the pet
-        boolean fed = game.feed();
+        boolean fed = game.feed(0);
         
         if (fed) {
             // Update progress bars to reflect changes
@@ -295,7 +295,7 @@ import javax.swing.JComponent;
      */
     private void giveGift() {
         // Give gift to pet
-        boolean gifted = game.giveGift();
+        boolean gifted = game.giveGift(0);
         
         if (gifted) {
             // Update progress bars to reflect changes
