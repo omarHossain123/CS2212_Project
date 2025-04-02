@@ -25,6 +25,9 @@ public class PetSelection {
         JFrame frame = new JFrame("Select Your Pet");
         frame.setSize(800, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
         
         // Create a custom panel with background image
         JPanel backgroundPanel = new JPanel() {
@@ -177,7 +180,21 @@ public class PetSelection {
         
         backgroundPanel.add(titlePanel, BorderLayout.NORTH);
         backgroundPanel.add(petCenterPanel, BorderLayout.CENTER);
-        
+
+        // Create a bottom panel for the Back button
+        JPanel topLeftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topLeftPanel.setOpaque(false);
+
+        // Create the Back to Main Menu button with your existing pastoral style
+        JButton backButton = createPastoralButton("Back to Main Menu");
+        backButton.addActionListener(e -> {
+            frame.dispose(); // Close the pet selection screen
+            SwingUtilities.invokeLater(() -> UserInterface.showMainMenu()); // Show the main menu
+        });
+
+        topLeftPanel.add(backButton);
+        backgroundPanel.add(topLeftPanel, BorderLayout.NORTH);
+                
         frame.setContentPane(backgroundPanel);
         frame.setVisible(true);
     }

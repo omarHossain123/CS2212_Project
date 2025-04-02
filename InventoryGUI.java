@@ -11,6 +11,7 @@ import java.awt.event.*;
  * and manage pet selection and item quantities. 
  * 
  * Most of the GUI was generated on Netbeans IDE and some parts for GUI, used the assistance of generative AI.
+ * @author Mohammad Alif
  */
 public class InventoryGUI extends javax.swing.JFrame {
     
@@ -36,6 +37,7 @@ public class InventoryGUI extends javax.swing.JFrame {
      * Initializes the inventory and sets up the UI components.
      * 
      * @param current The name of the current pet selected by the user.
+     * @author Mohammad Alif
      */
     public InventoryGUI(String current, Inventory inventory) {
         // Initializations;
@@ -51,6 +53,7 @@ public class InventoryGUI extends javax.swing.JFrame {
     /**
      * Applies a pastel monochromatic theme to the GUI components.
      * This method sets the background color and button colors for the entire interface.
+     * @author Mohammad Alif
      */
     private void applyMonochromaticPastelTheme() {
 
@@ -74,6 +77,7 @@ public class InventoryGUI extends javax.swing.JFrame {
      /**
      * Sets the font for all components in the GUI to "Comic Sans MS" with size 14.
      * This method ensures that the font for buttons, labels, text fields, and other components is consistent.
+     * @author Mohammad Alif
      */
     private void setFontForAllComponents() {
         try {
@@ -112,6 +116,7 @@ public class InventoryGUI extends javax.swing.JFrame {
      * The image is scaled to fit the width of the panel, but its height is preserved 
      * according to the original dimensions of the image. The image is drawn starting 
      * from the top-left corner of the panel.
+     * @author Mohammad Alif
      */
     class BackgroundPanel extends JPanel {
         private Image backgroundImage;
@@ -123,6 +128,7 @@ public class InventoryGUI extends javax.swing.JFrame {
          * rendering on the panel. The image is scaled to fit the width of the panel.
          * 
          * @param imagePath The path to the image file to be used as the background.
+         * @author Mohammad Alif
          */
         public BackgroundPanel(String imagePath) {
             backgroundImage = new ImageIcon(imagePath).getImage();
@@ -141,6 +147,7 @@ public class InventoryGUI extends javax.swing.JFrame {
     /**
      * Sets up the layout and functionality for the GUI components, including the inventory items and purchase options.
      * This method is automatically called when the form is initialized.
+     * @author Mohammad Alif
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
@@ -645,6 +652,7 @@ public class InventoryGUI extends javax.swing.JFrame {
      * @param itemName The name of the item.
      * @param cost The cost of the item.
      * @param message The description of the item.
+     * @author Mohammad Alif
      */
      private void showDetail(String itemName, String cost, String message){
         jTextPane2.setText(itemName);
@@ -691,6 +699,17 @@ public class InventoryGUI extends javax.swing.JFrame {
         toPurchase = jTextPane2.getText();
     }                                        
 
+    /**
+     * Handles the purchase of an item from the shop based on the selected item and quantity.
+     * The method checks if the user has enough score to make the purchase. If the user has sufficient score, 
+     * the inventory is updated, the score is adjusted, and a success message is shown. If the user doesn't have 
+     * enough score, an error message is displayed. The method also updates the corresponding inventory display 
+     * (e.g., number of items) and the scoreboard with the updated score.
+     * 
+     * @param evt The ActionEvent triggered by the purchase button click.
+     * @param scoreBoard The JTextPane that displays the current score.
+     * @author Mohammad Alif
+     */
     private void purchaseItem(java.awt.event.ActionEvent evt, JTextPane scoreBoard) {                              
         howMuch = (Integer) jSpinner1.getValue();
        
@@ -820,6 +839,7 @@ public class InventoryGUI extends javax.swing.JFrame {
      * @param panel The JPanel to add the pet selection components to.
      * @param scoreBoard The JTextPane used to display the user's score.
      * @return The modified JPanel with pet selection components.
+     * @author Mohammad Alif
      */
     private static JPanel createPetsSelect(JPanel panel, JTextPane scoreBoard, String current){
         panel.setLayout(new GridBagLayout());  // Change the layout to GridBagLayout
@@ -832,72 +852,12 @@ public class InventoryGUI extends javax.swing.JFrame {
         gbc.weightx = 1.0;  // Allow horizontal expansion
         gbc.weighty = 1.0;  // Allow vertical expansion
 
-        String[] assets = {"assets\\images\\petSprites\\Debatchi\\head2\\pet1_head2_neutral.png", "assets\\images\\petSprites\\Tsuyopitchi\\head2\\pet2_head2_neutral.png",
-    "assets\\images\\petSprites\\Kikitchi\\head2\\pet3_head2_neutral.png", "assets\\images\\petSprites\\Mametchi\\head2\\pet4_head2_neutral.png"};
-        String[] description = {"Duck with Buck-teeth", "Our Sassy Star ", 
-        "Ugly monkey, but still lovable", "Future King of Pirates..."};
-        String[] petNames = {"Debatchi", "Tsuyopitchi", "Kikitchi", "Mametchi"};
+        String assets = "assets\\images\\petSprites\\Tsuyopitchi\\head2\\pet2_head2_neutral.png";
+        String description = "Our Sassy Star";
+        String petNames = "Tsuyopitchi";
 
-        String[] petCosts = {"Free", "200", "500", "1000"};
+        String petCosts = "10000";
         boolean [] locked = inventory.getLockedPets();
-
-        // A
-        if (locked[1] && locked[2] && locked[3]){
-            switch (current) {
-                case "Tsuyopitchi":
-                    assets[0] = "assets\\images\\petSprites\\Tsuyopitchi\\head2\\pet2_head2_neutral.png";
-                    petNames[0] = "Tsuyopitchi";
-                    description[0] = "Our Sassy Star ";
-
-                    assets[1] = "assets\\images\\petSprites\\Debatchi\\head2\\pet1_head2_neutral.png";
-                    petNames[1] = "Debatchi";
-                    description[1] = "Duck with Buck-teeth";
-
-                    assets[2] = "assets\\images\\petSprites\\Kikitchi\\head2\\pet3_head2_neutral.png";
-                    petNames[2] = "Kikitchi";
-                    description[2] = "Ugly monkey, but still lovable";
-
-                    assets[3] = "assets\\images\\petSprites\\Mametchi\\head2\\pet4_head2_neutral.png";
-                    petNames[3] = "Mametchi";
-                    description[3] = "Future King of Pirates...";
-                    break;
-
-                case "Kikitchi":
-                    assets[2] = "assets\\images\\petSprites\\Tsuyopitchi\\head2\\pet2_head2_neutral.png";
-                    petNames[2] = "Tsuyopitchi";
-                    description[2] = "Our Sassy Star ";
-
-                    assets[1] = "assets\\images\\petSprites\\Debatchi\\head2\\pet1_head2_neutral.png";
-                    petNames[1] = "Debatchi";
-                    description[1] = "Duck with Buck-teeth";
-
-                    assets[0] = "assets\\images\\petSprites\\Kikitchi\\head2\\pet3_head2_neutral.png";
-                    petNames[0] = "Kikitchi";
-                    description[0] = "Ugly monkey, but still lovable";
-
-                    assets[3] = "assets\\images\\petSprites\\Mametchi\\head2\\pet4_head2_neutral.png";
-                    petNames[3] = "Mametchi";
-                    description[3] = "Future King of Pirates...";
-                    break;
-            
-                default:
-                    break;
-            }
-        }
-
-        ActionListener selectListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JButton sourceButton = (JButton) e.getSource();
-                int petIndex = Integer.parseInt(sourceButton.getActionCommand()); // Get the pet index from the button's action command
-
-                // When "Select" is clicked, set the current pet
-                inventory.setCurrentPet(petNames[petIndex]); // Set the current pet using the pet name
-
-                // Show the popup with the selected pet's name
-                JOptionPane.showMessageDialog(null, "You have selected: " + petNames[petIndex], "Pet Selected", JOptionPane.INFORMATION_MESSAGE);
-            }
-        };
 
         ActionListener purchaseListener = new ActionListener() {
             @Override
@@ -906,12 +866,12 @@ public class InventoryGUI extends javax.swing.JFrame {
                 int petIndex = Integer.parseInt(sourceButton.getActionCommand()); // Get the pet index from the button's action command
                 
                 // If the pet is already unlocked, don't allow purchasing again
-                if (!locked[petIndex]) {
+                if (!locked[1]) {
                     return; // Exit if pet is already unlocked
                 }
 
                 // Get the cost of the pet
-                int cost = Integer.parseInt(petCosts[petIndex]);
+                int cost = Integer.parseInt(petCosts);
                 
                 // Check if the player has enough score to purchase the pet
                 if (inventory.getScore() >= cost) {
@@ -923,14 +883,13 @@ public class InventoryGUI extends javax.swing.JFrame {
                         @Override
                         public void run() {
                             // Change button text to "Select"
-                            sourceButton.setText("Select");
-                            sourceButton.setEnabled(true); // Keep "Select" enabled after purchase
+                            sourceButton.setText("Purchased");
+                            sourceButton.setEnabled(false);
                             sourceButton.setActionCommand(String.valueOf(petIndex)); // Set the pet index as the action command
-                            sourceButton.addActionListener(selectListener);
 
                             // Update the cost label to say "Unlocked"
                             JPanel petPanel = (JPanel) sourceButton.getParent();
-                            JLabel costLabel = (JLabel) petPanel.getComponent(3); // Get the cost label (assuming it's the 3rd component)
+                            JLabel costLabel = (JLabel) petPanel.getComponent(1); // Get the cost label (assuming it's the 3rd component)
                             costLabel.setText(" Unlocked "); // Change cost to "Unlocked"
                         }
                     });
@@ -953,19 +912,19 @@ public class InventoryGUI extends javax.swing.JFrame {
         };
 
         // Iterate through possible pets
-        for (int i = 0; i < 4; i++) {
+        
             JPanel petPanel = new JPanel();
             petPanel.setLayout(new BoxLayout(petPanel, BoxLayout.Y_AXIS));
             petPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); 
 
             // Initialize Image
-            ImageIcon petImageIcon = new ImageIcon(assets[i]);
+            ImageIcon petImageIcon = new ImageIcon(assets);
             Image img = petImageIcon.getImage();  
             Image newImg = img.getScaledInstance(100, 100,  java.awt.Image.SCALE_SMOOTH);
             petImageIcon = new ImageIcon(newImg);
             
             // Set name
-            JLabel petName = new JLabel(petNames[i]);
+            JLabel petName = new JLabel(petNames);
             petName.setAlignmentX(Component.CENTER_ALIGNMENT);
             petName.setFont(new Font("Comic Sans MS", Font.BOLD, 18));
             petPanel.add(petName);
@@ -982,11 +941,11 @@ public class InventoryGUI extends javax.swing.JFrame {
 
             petPanel.add(petImage);
             
-            JLabel petDescription = new JLabel(description[i]); // Add description
+            JLabel petDescription = new JLabel(description); // Add description
             petDescription.setAlignmentX(Component.CENTER_ALIGNMENT);
             petPanel.add(petDescription);
 
-            JLabel costLabel = new JLabel("Cost: " + petCosts[i]);
+            JLabel costLabel = new JLabel("Cost: " + petCosts);
             costLabel.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the cost label
             costLabel.setFont(new Font("Comic Sans MS", Font.ITALIC, 14));
 
@@ -994,25 +953,16 @@ public class InventoryGUI extends javax.swing.JFrame {
             
             JButton button;
 
-            if (locked[i]) { // Check if the pet is locked
-                button = new JButton("Purchase for " + petCosts[i]);
-                button.setActionCommand(String.valueOf(i)); // Set the pet index as the action command
-                button.addActionListener(purchaseListener);
+            button = new JButton("Purchase for " + petCosts);
+            button.setActionCommand(String.valueOf(1)); // Set the pet index as the action command
+            button.addActionListener(purchaseListener);
                 
-            } else {
-                button = new JButton("Select");
-                button.setEnabled(true); // Enable the button after purchase
-                button.setActionCommand(String.valueOf(i)); // Set the pet index as the action command
-                button.addActionListener(selectListener);
-
-            }
-
             button.setAlignmentX(Component.CENTER_ALIGNMENT); // Center the button
 
             inventory.setLockedPets(locked);
             petPanel.add(button);
             panel.add(petPanel);
-        }  
+         
         return panel;
     }
     
@@ -1025,6 +975,7 @@ public class InventoryGUI extends javax.swing.JFrame {
      * pet, score, and inventory items.
      * 
      * @return The Inventory object containing the current pet, inventory items, and score.
+     * @author Mohammad Alif
      */
     public Inventory getInventoryClass(){
         return InventoryGUI.inventory;

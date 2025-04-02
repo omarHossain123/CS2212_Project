@@ -36,7 +36,7 @@ public class Inventory {
         }
 
         // Initialize locked pets array (only the first pet is unlocked initially).
-        this.isLockedPets = new boolean[]{false, true, true, true};
+        this.isLockedPets = new boolean[]{false, true, false, false};
         this.score = gameScore;
     }
 
@@ -131,6 +131,7 @@ public class Inventory {
 
         }
     }
+    // returns available food item index
 
     public int findAvailableFood(){
         for (int i = 0; i < 3; i++){
@@ -141,6 +142,7 @@ public class Inventory {
 
         return -1;
     }
+    // returns available toy item index
 
     public int findAvailableToy(){
         for (int i = 3; i < 6; i++){

@@ -18,15 +18,76 @@ public class TutorialScreen extends JDialog {
     private final Color CONTENT_BG = new Color(255, 255, 240, 200); // Semi-transparent background
     
     private final String[] titles = {
-        "Overview", "Health", "Sleep", "Fullness", "Happiness"
+        "Welcome to Virtual Pet!", 
+        "Game Basics", 
+        "Pet Stats", 
+        "Actions Menu", 
+        "Inventory & Shop", 
+        "Scoring & Survival"
     };
     
     private final String[] content = {
-        "Welcome to the Virtual Pet Game! This tutorial will guide you through the basics of the game. Use the arrow buttons to navigate through the pages.\n\nIn this game, you'll need to manage your pet's health, happiness, hunger, and sleep levels while taking care of its needs.",
-        "Health represents your pet's physical well-being. It decreases when your pet gets sick or injured, and increases when it rests or visits the vet.\n\nIf your pet's health reaches zero, it will die, and the game will be over.",
-        "Sleep is essential for your pet. As it performs activities, it gets tired. Make sure to put your pet to bed regularly to keep it healthy and happy.\n\nYou can let your pet sleep anywhere, but some areas may help it recover faster.",
-        "Fullness represents your pet's hunger. If it's too hungry, its health will begin to decline.\n\nYou can feed your pet from your inventory of food items. Different food items affect fullness differently, so choose wisely!",
-        "Happiness affects your pet's mood and ability to interact. Keep your pet happy by playing with it, giving gifts, and completing its needs.\n\nA happy pet will perform better, and a sad pet will become less responsive to your actions."
+        "Welcome to the Virtual Pet Game! Your goal is to care for and nurture a virtual pet, keeping it healthy, happy, and alive as long as possible.\n\n" +
+        "This game is all about balancing your pet's needs through various actions and managing its overall well-being.",
+        
+        "Navigate the game using different buttons:\n" +
+        "• Commands Button: Open the action menu to interact with your pet\n" +
+        "• Settings Button: Access game settings and options\n" +
+        "• Shop Button: Buy items to help care for your pet\n\n" +
+        "Your pet will react to your actions and have different states based on its current condition.",
+        
+        "Your pet has four key stats that you must manage:\n" +
+        "1. Health: Represents physical well-being\n" +
+        "   - Decreases when pet is sick or tired\n" +
+        "   - Can be restored by resting or visiting the vet\n" +
+        "   - If health reaches zero, the game ends\n\n" +
+        "2. Hunger: Indicates how full your pet is\n" +
+        "   - Decreases over time\n" +
+        "   - Feed your pet to keep hunger levels up\n\n" +
+        "3. Happiness: Reflects your pet's mood\n" +
+        "   - Increases by playing and giving gifts\n" +
+        "   - Decreases if needs are not met\n\n" +
+        "4. Sleep: Shows how rested your pet is\n" +
+        "   - Depletes with activities\n" +
+        "   - Put your pet to bed to restore energy",
+        
+        "The Commands Menu allows you to interact with your pet:\n" +
+        "• Feeding: Choose from different food items\n" +
+        "   - Select food from your inventory\n" +
+        "   - Each food affects hunger differently\n\n" +
+        "• Gifts: Give items to increase happiness\n" +
+        "   - Choose from various gift options\n\n" +
+        "• Activities: Keep your pet active\n" +
+        "   - Play with your pet\n" +
+        "   - Take your pet for a walk\n\n" +
+        "• Health & Rest:\n" +
+        "   - Put your pet to sleep\n" +
+        "   - Visit the vet to restore health",
+        
+        "Inventory & Shop Features:\n" +
+        "• Shop allows you to purchase:\n" +
+        "   - Food items\n" +
+        "   - Gifts\n" +
+        "   - Other special items\n\n" +
+        "• Manage your inventory\n" +
+        "   - Limited number of items\n" +
+        "   - Choose wisely what to buy\n\n" +
+        "• Spending depletes your score\n" +
+        "   - Earn score by keeping your pet healthy\n" +
+        "   - Budget carefully!",
+        
+        "Scoring and Survival:\n" +
+        "• Score increases over time\n" +
+        "   - Starts at zero\n" +
+        "   - Increases as you keep your pet alive and happy\n\n" +
+        "• Game Over Conditions:\n" +
+        "   - Health reaches zero\n" +
+        "   - Pet becomes too unhappy\n\n" +
+        "• Tips for Long-Term Survival:\n" +
+        "   - Balance all four key stats\n" +
+        "   - Regular care and attention\n" +
+        "   - Use shop items strategically\n" +
+        "   - Respond quickly to your pet's needs"
     };
     
     private int page = 0;

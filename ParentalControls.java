@@ -24,7 +24,7 @@ public class ParentalControls extends JDialog {
     
     private CardLayout cardLayout;
     private JPanel mainPanel;
-    private static final String PASSWORD = "HelloWorld123$";
+    private static final String PASSWORD = "123";
     
     // Parental control settings
     private boolean timeLimitEnabled = false;

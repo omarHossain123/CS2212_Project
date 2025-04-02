@@ -10,6 +10,8 @@ public class UserInterface {
     private static String currentSaveFile;
     private static long sessionStartTime;
     private static boolean isApplicationRunning = false;
+    // Add this field to store the loaded save data
+    private static GameSaveData currentSaveData;
 
     public static void main(String[] args) {
         // Record session start time
@@ -59,7 +61,9 @@ public class UserInterface {
                 String saveName = promptForSaveName(null);
                 if (saveName != null) {
                     currentSaveFile = saveName;
-                    mainGame game = new mainGame(currentPet);
+                    
+                    // Create a new game with the selected pet - using mainGame instead of mainGameNew
+                    mainGame game = new mainGame(currentPet, null);
                     
                     // Add window listener to save game on close
                     game.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -76,7 +80,7 @@ public class UserInterface {
                 }
             });            
         });
-    
+
         mainMenu.getContinueGameButton().addActionListener(e -> {
             // Check parental controls before loading game
             if (!ParentalControls.isPlayingAllowed()) {
@@ -86,15 +90,14 @@ public class UserInterface {
             
             List<String> saveFiles = getSaveFiles();
             if (saveFiles.isEmpty()) {
-                // Use StyledDialog instead of JOptionPane
                 StyledDialog.showInformationDialog(mainMenu,
                         "No saved games found. Please start a new game.",
                         "No Saves Found");
             } else {
-                // Use our new styled save selector
+                // Show stylish save file selection dialog
                 String selectedSave = StyledSaveSelector.showDialog(
                         mainMenu,
-                        "Choose a saved pet to continue your adventure:",
+                        "Select a saved game to load:",
                         "Load Game",
                         saveFiles);
                 
@@ -102,7 +105,9 @@ public class UserInterface {
                     currentSaveFile = selectedSave;
                     if (loadGame()) {
                         mainMenu.dispose();
-                        mainGame game = new mainGame(currentPet);
+                        
+                        // Create the game with loaded pet - using mainGame instead of mainGameNew
+                        mainGame game = new mainGame(currentPet, null);
                         
                         // Add window listener to save game on close
                         game.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -117,9 +122,9 @@ public class UserInterface {
                 }
             }
         });
-        
-            mainMenu.setVisible(true);
-        }
+
+        mainMenu.setVisible(true);
+    }
     
     /**
      * Shows a message when play is restricted by parental controls
@@ -137,7 +142,6 @@ public class UserInterface {
                     endTime.format(ParentalControls.TIME_FORMATTER);
         }
         
-        // Use StyledDialog instead of JOptionPane
         StyledDialog.showWarningDialog(parent,
             "Outside of allowed play time hours.\n" +
             "You can only play during the hours: " + timeRange + "\n" +
@@ -153,8 +157,8 @@ public class UserInterface {
     private static String promptForSaveName(String defaultName) {
         String saveName = StyledDialog.showInputDialog(
                 null,
-                "What would you like to name your save file?",
-                "Name Your Save File",
+                "Enter a name for this save file:",
+                "Save Game",
                 defaultName);
         
         if (saveName == null || saveName.trim().isEmpty()) {
@@ -214,12 +218,30 @@ public class UserInterface {
             return;
         }
         
+        // Get reference to the game instance from mainGame
+        mainGame gameInstance = null;
+        
+        // Find the mainGame instance if it exists
+        for (java.awt.Window window : java.awt.Window.getWindows()) {
+            if (window instanceof mainGame) {
+                gameInstance = (mainGame) window;
+                break;
+            }
+        }
+        
+        // Create a GameSaveData object to store all relevant data
+        GameSaveData saveData = new GameSaveData();
+        saveData.setPet(currentPet);
+        
+        // If we found the game instance, we could save additional state here
+        // But for now we're just saving the pet data
+        
         String savePath = SAVES_DIRECTORY + File.separator + currentSaveFile + ".dat";
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(savePath))) {
-            oos.writeObject(currentPet);
+            oos.writeObject(saveData);
             System.out.println("Game saved successfully to " + savePath);
             
-            // Show confirmation dialog with StyledDialog
+            // Show confirmation dialog
             StyledDialog.showInformationDialog(null,
                     "Game saved successfully!",
                     "Save Complete");
@@ -244,9 +266,33 @@ public class UserInterface {
         }
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(savePath))) {
-            currentPet = (Pet) ois.readObject();
-            System.out.println("Game loaded successfully from " + savePath);
-            return true;
+            Object loadedObject = ois.readObject();
+            
+            // Handle both old save format (just Pet) and new format (GameSaveData)
+            if (loadedObject instanceof GameSaveData) {
+                GameSaveData saveData = (GameSaveData) loadedObject;
+                currentPet = saveData.getPet();
+                
+                // Store the loaded save data to be used when creating mainGame
+                currentSaveData = saveData;
+                
+                System.out.println("Game loaded successfully from " + savePath);
+                return true;
+            } 
+            else if (loadedObject instanceof Pet) {
+                // Legacy support for old save files that only saved the Pet
+                currentPet = (Pet) loadedObject;
+                
+                // Create a new GameSaveData with just the pet
+                currentSaveData = new GameSaveData();
+                currentSaveData.setPet(currentPet);
+                
+                System.out.println("Legacy game save loaded successfully from " + savePath);
+                return true;
+            }
+            else {
+                throw new ClassNotFoundException("Unknown save file format");
+            }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
             StyledDialog.showErrorDialog(null,

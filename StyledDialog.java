@@ -698,4 +698,5 @@ public class StyledDialog extends JDialog {
         dialog.setVisible(true);
         return dialog.inputResult;
     }
+    
 }
