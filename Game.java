@@ -1,3 +1,6 @@
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class Game {
     private Pet pet;
     private String petType;
@@ -66,7 +69,7 @@ public class Game {
             if (pet.getHealth() != 0) {
                 pet.setState("sleep");
                 pet.updateRates(1);
-                pet.setEmotion("nervous", 0); // Permanent emotion
+                pet.setEmotion("blink", 0); // Permanent emotion 
                 refreshUI();
                 return "sleep";
             } else {
@@ -141,25 +144,85 @@ public class Game {
             return false;
         }
         
-        // Significant health boost
-        pet.increaseHealth(30);
+        // Store original state to restore later
+        String originalState = pet.getState();
         
-        // Small happiness penalty (pets don't like vets!)
-        pet.decrementHappiness(5);
+        // Set to a temporary "vet" state
+        pet.setState("vet");
         
-        // Update score
-        increaseScore(20);
-        
-        // Set cooldown timer
-        lastVetTime = currentTime;
-
         // Set temporary nervous state and emotion
         pet.setEmotion("nervous", TEMP_EMOTION_DURATION);
+        
+        // Change the background to the vet background
+        if (gameUI != null) {
+            gameUI.changeBackground("assets\\images\\Backgrounds\\Vet_Background.png");
+        }
         
         // Force UI refresh immediately
         refreshUI(); 
         
-        System.out.println("Pet visited the vet! Health: " + pet.getHealth());
+        // Small happiness penalty (pets don't like vets!)
+        pet.decrementHappiness(10);
+        
+        // Update score
+        increaseScore(-20);
+        
+        // Set cooldown timer
+        lastVetTime = currentTime;
+        
+        // Get the amount of health to restore (30 total)
+        final int totalHealthIncrease = 50;
+        final int healingSteps = 1; // Number of steps to spread the healing over
+        final int healthPerStep = totalHealthIncrease / healingSteps;
+        
+        // Create a timer for gradual health increase
+        final Timer healingTimer = new Timer();
+        healingTimer.scheduleAtFixedRate(new TimerTask() {
+            private int stepsRemaining = healingSteps;
+            
+            @Override
+            public void run() {
+                if (stepsRemaining > 0 && !pet.getState().equals("dead")) {
+                    // Add health for this step
+                    pet.increaseHealth(healthPerStep);
+                    
+                    // Update UI to show progress
+                    refreshUI();
+                    
+                    stepsRemaining--;
+                    System.out.println("Healing step completed. Health: " + pet.getHealth());
+                } else {
+                    // Healing complete or pet died, cancel timer
+                    healingTimer.cancel();
+                }
+            }
+        }, 0, TEMP_EMOTION_DURATION / healingSteps); // Spread healing evenly over the duration
+        
+        System.out.println("Pet visited the vet! Starting treatment...");
+        
+        // Schedule restoration of original state after emotion duration
+        Timer stateRestoreTimer = new Timer();
+        stateRestoreTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                // Don't restore to original state if pet died during treatment
+                if (!pet.getState().equals("dead")) {
+                    pet.setState(originalState);
+                    // Also check state conditions - maybe state needs to be updated
+                    checkState();
+                    
+                    // Restore the original background
+                    if (gameUI != null) {
+                        gameUI.restoreDefaultBackground();
+                    }
+                    
+                    refreshUI();
+                    System.out.println("Pet state restored after vet visit");
+                }
+                stateRestoreTimer.cancel(); // Clean up timer
+            }
+        }, TEMP_EMOTION_DURATION);
+        
         return true;
     }
     
@@ -179,7 +242,7 @@ public class Game {
         if ((pet.getState() != "dead") && (pet.getState() != "angry")) {
             System.out.println("Setting pet state to sleep");
             pet.setState("sleep");
-            pet.setEmotion("nervous", TEMP_EMOTION_DURATION);
+            pet.setEmotion("blink", 0); 
             
             // Force UI refresh immediately
             refreshUI();
