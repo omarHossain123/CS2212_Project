@@ -3,6 +3,7 @@ public class Game {
     private String petType;
     private double score;
     private Inventory inventory;
+    private mainGame gameUI;
     
     // Cooldown timers for various actions (in milliseconds)
     private long lastFeedTime = 0;
@@ -19,6 +20,9 @@ public class Game {
     private static final long VET_COOLDOWN = 30000;   // 30 seconds
     private static final long PLAY_COOLDOWN = 12000;  // 12 seconds
     private static final long WALK_COOLDOWN = 18000;  // 18 seconds
+    
+    // Temporary emotion duration
+    private static final int TEMP_EMOTION_DURATION = 3000; // 3 seconds
     
     public Game(String petType) {
         this.petType = petType;
@@ -41,188 +45,89 @@ public class Game {
         // Check for critical conditions
         checkState();
     }
-    public boolean changeState(){
-        if (pet.getState() == "hungry") {
-            if(pet.getHunger() != 0){
-                System.out.println(pet.getHunger());
-                pet.setState("default");
-                pet.updateRates(3);
-                return true;
-            }
-            
-        } else if (pet.getState() == "angry") {
-            
-            if(pet.getHunger() != 0){
-                pet.setState("default");
-                pet.updateRates(3);
-                return true;
-            }
-          
 
-           
-        } else if (pet.getState() == "sleep") {
-            
-            if(pet.getSleep() >= pet.getMaxSleep()){
-                pet.setState("default");
-                pet.updateRates(3);
-                return true;
-            }
-            
-        } 
-            return false;
-        
-    }
     /**
      * Checks the pet's state and updates it accordingly
      * @return The current state of the pet
      */
     public String checkState() {
-
+        String oldState = pet.getState();
+        
         if (pet.getHealth() <= 0) {
+            // Pet is dead - set state and permanent sad emotion
             pet.setState("dead");
             pet.updateRates(0);
+            pet.setEmotion("sad", 0); // 0 duration means permanent
+            refreshUI();
             return "dead";
-        } else if (pet.getSleep() <= 0 && pet.getState() != "sleep") {
+        } else if (pet.getSleep() <= 0 && !oldState.equals("sleep")) {
+            // Pet is tired - set sleep state and permanent nervous emotion
             pet.decrementHealth(15);
             if (pet.getHealth() != 0) {
                 pet.setState("sleep");
                 pet.updateRates(1);
+                pet.setEmotion("nervous", 0); // Permanent emotion
+                refreshUI();
                 return "sleep";
             } else {
                 pet.setState("dead");
                 pet.updateRates(0);
+                pet.setEmotion("sad", 0); // Permanent emotion
+                refreshUI();
                 return "dead";
             }
-            
-        } 
-        else if ((pet.getHunger() <= 0) && (pet.getState() != "hungry")) {
-            System.out.println("Retarded" + pet.getState());
+        } else if ((pet.getHunger() <= 0) && !oldState.equals("hungry")) {
+            // Pet is hungry - set hungry state and permanent discontent emotion
             pet.setState("hungry");
             pet.decrementHealth(15);
             pet.updateRates(2);
+            pet.setEmotion("discontent", 0); // Permanent emotion
+            refreshUI();
             return "hungry";
-        }else if (pet.getHappiness() <= 0 && pet.getState() != "angry" ) {
+        } else if (pet.getHappiness() <= 0 && !oldState.equals("angry")) {
+            // Pet is angry - set angry state and permanent angry emotion
             pet.setState("angry");
+            pet.setEmotion("angry", 0); // Permanent emotion
+            refreshUI();
             return "angry";
         }
+        
         return "default";
-
     }
 
-    // public String checkState() {
-    //     // Check if the pet is in a critical state
-    //     if (pet.getHealth() == 0) {
-    //         pet.setState("sick");
-    //     } else if (pet.getHunger() == 0) {
-    //         pet.setState("hungry");
-    //     } else if (pet.getSleep() == 0) {
-    //         pet.setState("tired");
-    //     } else if (pet.getHappiness() == 0) {
-    //         pet.setState("sad");
-    //     } 
-        
-    //     return pet.getState();
-    // }
-    
     /**
-     * Feeds the pet to increase hunger and potentially happiness
-     * @return true if the pet was fed successfully, false if on cooldown
+     * Changes the pet's state back to default if conditions are met
+     * @return true if state was changed, false otherwise
      */
-    public boolean feed(int index) {
-        long currentTime = System.currentTimeMillis();
-        
-        // Check if the action is on cooldown
-        if (currentTime - lastFeedTime < FEED_COOLDOWN) {
-            System.out.println("Feed action is on cooldown!");
-            return false;
+    public boolean changeState() {
+        if (pet.getState().equals("hungry")) {
+            if (pet.getHunger() != 0) {
+                pet.setState("default");
+                pet.updateRates(3);
+                pet.setEmotion("neutral", 0); // Return to neutral permanently
+                refreshUI();
+                return true;
+            }
+        } else if (pet.getState().equals("angry")) {
+            if (pet.getHunger() != 0) {
+                pet.setState("default");
+                pet.updateRates(3);
+                pet.setEmotion("neutral", 0); // Return to neutral permanently
+                refreshUI();
+                return true;
+            }
+        } else if (pet.getState().equals("sleep")) {
+            if (pet.getSleep() >= pet.getMaxSleep()) {
+                pet.setState("default");
+                pet.updateRates(3);
+                pet.setEmotion("neutral", 0); // Return to neutral permanently
+                refreshUI();
+                return true;
+            }
         }
-        
-        double[] improve = inventory.useItem(index);
-        if((0 > improve[0])||(0 > improve[1])){
-            return false;
-
-        }
-        else{
-            pet.increaseHunger(improve[0]);
-            pet.increaseHappiness(improve[1]);
-            
-            
-        }
-
-        
-        // Set cooldown timer
-        lastFeedTime = currentTime;
-        
-        System.out.println("Pet has been fed! Hunger: " + pet.getHunger());
-        return true;
+        return false;
     }
-    
-    /**
-     * Gives a gift to the pet to increase happiness
-     * @return true if the gift was given successfully, false if on cooldown
-     */
-    public boolean giveGift(int index) {
-        long currentTime = System.currentTimeMillis();
-        
-        // Check if the action is on cooldown
-        if (currentTime - lastGiftTime < GIFT_COOLDOWN) {
-            System.out.println("Gift action is on cooldown!");
-            return false;
-        }
-        
-        // Significant happiness boost
-        double[] improve = inventory.useItem(index);
-        if((0 > improve[0])||(0 > improve[1])){
-            return false;
 
-        }
-        else{
-            pet.increaseHunger(improve[0]);
-            pet.increaseHappiness(improve[1]);
-            
-        }
-
-        // Set cooldown timer
-        lastGiftTime = currentTime;
-        
-        System.out.println("Pet received a gift! Happiness: " + pet.getHappiness());
-        return true;
-    }
-    
-    /**
-     * Puts the pet to sleep to restore sleep stat
-     * @return true if the pet went to sleep successfully, false if on cooldown
-     */
-    public boolean goToBed() {
-        long currentTime = System.currentTimeMillis();
-        
-        // Check if the action is on cooldown
-        if (currentTime - lastSleepTime < SLEEP_COOLDOWN) {
-            System.out.println("Sleep action is on cooldown!");
-            return false;
-        }
-
-        if ((pet.getState()!= "dead") || (pet.getState()!= "angry") || (pet.getState() != "sleep")) {
-            pet.setState("sleep");
-            // Restore sleep
-            
-        
-        
-        
-        
-        // Set cooldown timer
-            lastSleepTime = currentTime;
-            pet.updateRates(1);
-            System.out.println("Pet is sleeping! Sleep: " + pet.getSleep());
-         return true;
-        } else {
-            return false;
-        }
-
-        
-        
-    }
-    
     /**
      * Takes the pet to the vet to restore health
      * @return true if the pet was treated successfully, false if on cooldown
@@ -247,11 +152,85 @@ public class Game {
         
         // Set cooldown timer
         lastVetTime = currentTime;
+
+        // Set temporary nervous state and emotion
+        pet.setEmotion("nervous", TEMP_EMOTION_DURATION);
+        
+        // Force UI refresh immediately
+        refreshUI(); 
         
         System.out.println("Pet visited the vet! Health: " + pet.getHealth());
         return true;
     }
     
+    /**
+     * Puts the pet to sleep to restore sleep stat
+     * @return true if the pet went to sleep successfully, false if on cooldown
+     */
+    public boolean goToBed() {
+        long currentTime = System.currentTimeMillis();
+        
+        // Check if the action is on cooldown
+        if (currentTime - lastSleepTime < SLEEP_COOLDOWN) {
+            System.out.println("Sleep action is on cooldown!");
+            return false;
+        }
+
+        if ((pet.getState() != "dead") && (pet.getState() != "angry")) {
+            System.out.println("Setting pet state to sleep");
+            pet.setState("sleep");
+            pet.setEmotion("nervous", TEMP_EMOTION_DURATION);
+            
+            // Force UI refresh immediately
+            refreshUI();
+            
+            // Set cooldown timer
+            lastSleepTime = currentTime;
+            pet.updateRates(1);
+            System.out.println("Pet is sleeping! Sleep: " + pet.getSleep());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Takes the pet for a walk to improve multiple stats
+     * @return true if walked successfully, false if on cooldown
+     */
+    public boolean walk() {
+        long currentTime = System.currentTimeMillis();
+        
+        // Check if the action is on cooldown
+        if (currentTime - lastWalkTime < WALK_COOLDOWN) {
+            System.out.println("Walk action is on cooldown!");
+            return false;
+        }
+        
+        // Improve multiple stats
+        pet.increaseHealth(10);
+        pet.increaseHappiness(15);
+        
+        // Walking makes the pet more hungry and tired
+        pet.decrementHunger(10);
+        pet.decrementSleep(10);
+        
+        // Update score
+        increaseScore(20);
+        
+        // Set cooldown timer
+        lastWalkTime = currentTime;
+
+        // Show happy emotion when walking
+        pet.setEmotion("happy", TEMP_EMOTION_DURATION);
+        
+        // Force immediate UI update
+        refreshUI();
+        
+        System.out.println("Walked the pet! Health: " + pet.getHealth() + ", Happiness: " + pet.getHappiness());
+        return true;
+    }
+
     /**
      * Plays with the pet to increase happiness
      * @return true if played successfully, false if on cooldown
@@ -279,37 +258,87 @@ public class Game {
         lastPlayTime = currentTime;
         
         System.out.println("Played with pet! Happiness: " + pet.getHappiness());
+
+        // Show happy emotion when playing
+        pet.setEmotion("happy", TEMP_EMOTION_DURATION);
+    
+        // Refresh UI immediately
+        refreshUI();
+
         return true;
     }
-    
+
     /**
-     * Takes the pet for a walk to improve multiple stats
-     * @return true if walked successfully, false if on cooldown
+     * Feeds the pet to increase hunger and potentially happiness
+     * @return true if the pet was fed successfully, false if on cooldown
      */
-    public boolean walk() {
+    public boolean feed(int index) {
         long currentTime = System.currentTimeMillis();
         
         // Check if the action is on cooldown
-        if (currentTime - lastWalkTime < WALK_COOLDOWN) {
-            System.out.println("Walk action is on cooldown!");
+        if (currentTime - lastFeedTime < FEED_COOLDOWN) {
+            System.out.println("Feed action is on cooldown!");
             return false;
         }
         
-        // Improve multiple stats
-        pet.increaseHealth(10);
-        pet.increaseHappiness(15);
-        
-        // Walking makes the pet more hungry and tired
-        pet.decrementHunger(10);
-        pet.decrementSleep(10);
-        
-        // Update score
-        increaseScore(20);
-        
+        double[] improve = inventory.useItem(index);
+        if((0 > improve[0])||(0 > improve[1])){
+            return false;
+        }
+        else{
+            pet.increaseHunger(improve[0]);
+            pet.increaseHappiness(improve[1]);
+            
+            // Choose randomly between happy and blush emotions when fed
+            String[] feedEmotions = {"happy", "blush"};
+            int randomIndex = (int)(Math.random() * feedEmotions.length);
+            
+            // Set a temporary emotion
+            pet.setEmotion(feedEmotions[randomIndex], TEMP_EMOTION_DURATION);
+            
+            // Refresh UI immediately
+            refreshUI();
+        }
+    
         // Set cooldown timer
-        lastWalkTime = currentTime;
+        lastFeedTime = currentTime;
         
-        System.out.println("Walked the pet! Health: " + pet.getHealth() + ", Happiness: " + pet.getHappiness());
+        System.out.println("Pet has been fed! Hunger: " + pet.getHunger());
+        return true;
+    }
+
+    /**
+     * Gives a gift to the pet to increase happiness
+     * @return true if the gift was given successfully, false if on cooldown
+     */
+    public boolean giveGift(int index) {
+        long currentTime = System.currentTimeMillis();
+        
+        // Check if the action is on cooldown
+        if (currentTime - lastGiftTime < GIFT_COOLDOWN) {
+            System.out.println("Gift action is on cooldown!");
+            return false;
+        }
+        
+        double[] improve = inventory.useItem(index);
+        if((0 > improve[0])||(0 > improve[1])){
+            return false;
+        }
+        else{
+            pet.increaseHunger(improve[0]);
+            pet.increaseHappiness(improve[1]);
+            
+            // Set emotion to blush when given a gift
+            pet.setEmotion("blush", TEMP_EMOTION_DURATION);
+            
+            // Refresh UI immediately
+            refreshUI();
+        }
+
+        // Set cooldown timer
+        lastGiftTime = currentTime;
+        
+        System.out.println("Pet received a gift! Happiness: " + pet.getHappiness());
         return true;
     }
     
@@ -442,7 +471,7 @@ public class Game {
         this.lastWalkTime = lastWalkTime;
     }
     public boolean validState() {
-        if ((pet.getState() == "default") || (pet.getState() == "hungry")) {
+        if ((pet.getState().equals("default")) || (pet.getState().equals("hungry"))) {
             return true;
         } else {
             return false;
@@ -472,6 +501,18 @@ public class Game {
      */
     public void setInventory(Inventory inventory) {
         this.inventory = inventory;
+    }
+
+    // method to set the UI reference
+    public void setGameUI(mainGame ui) {
+        this.gameUI = ui;
+    }
+
+    // method to refresh the UI
+    public void refreshUI() {
+        if (gameUI != null) {
+            gameUI.refreshPetImage();
+        }
     }
 
     /**

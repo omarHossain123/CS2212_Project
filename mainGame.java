@@ -46,9 +46,15 @@ import javax.swing.JComponent;
      */
     public mainGame(Pet selectedPet, GameSaveData saveData) {
         this.currentPet = selectedPet;
-        
-        // Create a new game with the pet type
+
+        // Create a new game with the pet type only ONCE
         game = new Game(selectedPet.getType());
+        
+        // Set the UI reference
+        game.setGameUI(this);
+
+        setupRandomBlinking();
+        setupRandomIdleAnimations();
         
         // If we have save data, restore the game state
         if (saveData != null) {
@@ -56,10 +62,10 @@ import javax.swing.JComponent;
             game.restoreFromSave(saveData);
             
             // Update the current pet reference to use the one from the saved game
-            // which should have all the correct stats
             this.currentPet = game.getPet();
         }
         
+        // Initialize the UI components
         initComponents();
         addSaveButton();
         
@@ -76,37 +82,59 @@ import javax.swing.JComponent;
         gameScore = (int) game.getScore();
         scoreLabel.setText(String.format("%017d", gameScore));
         
-        // Create and start the score timer
-        timer = new Timer(500, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Update game state
-                game.changeState();
-                game.checkState();
-                if(game.getPet().getState() != "default"){
-                    // Check if the pet is dead
-                    if (game.getPet().getHealth() <= 0) {
-                        // Stop the timer and show game over message
-                        timer.stop();
-                        return;
-                    }
-                
-                }
-                else{
-                    game.increaseScore(1);
-                gameScore = (int) game.getScore();
-                }
-                
-                // Update pet stats
-                game.gameDecrement();
-                //
-                // Update progress bars to reflect current pet state
-                updateProgressBars();
-                
-                // Update the score label with leading zeros (17 digits)
-                scoreLabel.setText(String.format("%017d", (int)game.getScore()));
+        /**
+     * Timer action listener that handles pet state and image updates
+     */
+    // Create and start the score timer
+    timer = new Timer(500, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            // Store initial state and emotion for comparison
+            String oldState = game.getPet().getState();
+            String oldEmotion = game.getPet().getEmotion();
+
+            // Update pet state
+            game.changeState();
+            String newState = game.checkState();
+            
+            // Check if state or emotion changed
+            String newEmotion = game.getPet().getEmotion();
+            boolean stateChanged = !oldState.equals(newState);
+            boolean emotionChanged = !oldEmotion.equals(newEmotion);
+            
+            if (emotionChanged) {
+                System.out.println("REFRESH: Emotion changed from " + oldEmotion + " to " + newEmotion);
+                refreshPetImage(); // Load new image because emotion changed
             }
-        });
+
+            // Check for death state
+            if (game.getPet().getState().equals("dead")) {
+                // Stop the timer and show game over message
+                timer.stop();
+                refreshPetImage(); // Update image for death state
+                // You could show a game over dialog here
+                return;
+            } else if (game.getPet().getState().equals("default")) {
+                // Only increase score if in default state
+                game.increaseScore(1);
+                gameScore = (int) game.getScore();
+            }
+            
+            // Update pet stats
+            game.gameDecrement();
+            
+            // Update progress bars to reflect current pet state
+            updateProgressBars();
+            
+            // If state changed, ensure the image is updated
+            if (stateChanged) {
+                refreshPetImage();
+            }
+            
+            // Update the score label with leading zeros (17 digits)
+            scoreLabel.setText(String.format("%017d", (int)game.getScore()));
+        }
+    });
 
         timer.setRepeats(true);
         timer.start();
@@ -163,24 +191,38 @@ import javax.swing.JComponent;
         depleteProgressBar(hungerBar, 100, 1, 6000);
     }
 
+    /**
+     * Loads the pet image based on current state and emotion
+     */
     private void loadPetImage() {
-        // Get the image path from the current pet
-        String imagePath = currentPet.getPetImage().getDescription();
-        
         try {
+            // Get the current pet from the game
+            currentPet = game.getPet();
+            
+            // Get pet's current state and emotion for debugging
+            String currentState = currentPet.getState();
+            String currentEmotion = currentPet.getEmotion();
+            
+            // Get the emotion image path
+            String imagePath = currentPet.getEmotionImagePath();
+            
+            System.out.println("Loading image for state: " + currentState + 
+                             ", emotion: " + currentEmotion + 
+                             ", path: " + imagePath);
+            
             ImageIcon originalIcon = new ImageIcon(imagePath);
             
-            // Scale the image to fit the JLabel dimensions (346x320 as per your code)
+            // Scale the image
             Image scaledImage = originalIcon.getImage().getScaledInstance(
                 346, 
                 320, 
                 Image.SCALE_SMOOTH);
                 
             petImage.setIcon(new ImageIcon(scaledImage));
+            petImage.repaint();
         } catch (Exception e) {
-            System.err.println("Error loading pet image: " + imagePath);
-            petImage.setIcon(null); // Clear image if loading fails
-            petImage.setText("Pet Image Missing");
+            System.err.println("Error loading pet image: " + e.getMessage());
+            e.printStackTrace();
         }
     }
      
@@ -332,9 +374,14 @@ import javax.swing.JComponent;
         }
     }
     
+    /**
+     * Forces an immediate refresh of the pet image
+     */
     public void refreshPetImage() {
         loadPetImage();
+        petImage.repaint(); // Force immediate repaint
     }
+    
     
     /**
      * Depletes specified JProgressBar from a given start value down to 0.
@@ -589,6 +636,57 @@ import javax.swing.JComponent;
     jPanel1.add(saveButton);
     saveButton.setBounds(994, 70, 60, 60); // Position it below the settings button
 }
+
+    private void setupRandomBlinking() {
+        // Create a timer to occasionally make the pet blink
+        javax.swing.Timer blinkTimer = new javax.swing.Timer(3000, new ActionListener() { // Check every 7 seconds
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Only blink if in default state and not already showing an emotion
+                if (game.getPet().getState().equals("default") && 
+                    game.getPet().getEmotion().equals("neutral")) {
+                    
+                    // 30% chance to blink
+                    if (Math.random() < 0.9) {
+                        System.out.println("Random blink triggered");
+                        game.getPet().setEmotion("blink", 1000); // Blink for half a second
+                        refreshPetImage(); // Update the image right away
+                    }
+                }
+            }
+        });
+        
+        blinkTimer.setRepeats(true);
+        blinkTimer.start();
+    }
+
+    private void setupRandomIdleAnimations() {
+        // Create a timer for occasional random animations
+        javax.swing.Timer idleTimer = new javax.swing.Timer(15000, new ActionListener() { // Check every 15 seconds
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Only show idle animations if in default state and not already showing an emotion
+                if (game.getPet().getState().equals("default") && 
+                    game.getPet().getEmotion().equals("neutral")) {
+                    
+                    // 20% chance to show a random idle animation
+                    if (Math.random() < 0.2) {
+                        // Choose a random emotion from happy, nervous, or blush
+                        String[] idleEmotions = {"happy", "nervous", "blush"};
+                        int randomIndex = (int)(Math.random() * idleEmotions.length);
+                        String randomEmotion = idleEmotions[randomIndex];
+                        
+                        System.out.println("Random idle animation: " + randomEmotion);
+                        game.getPet().setEmotion(randomEmotion, 2000); // Show for 2 seconds
+                        refreshPetImage(); // Update the image right away
+                    }
+                }
+            }
+        });
+        
+        idleTimer.setRepeats(true);
+        idleTimer.start();
+    }
  
    
      // Variables declaration - do not modify//GEN-BEGIN:variables

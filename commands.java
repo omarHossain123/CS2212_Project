@@ -9,7 +9,8 @@
  import javax.swing.AbstractAction;
  import javax.swing.Action;
  import javax.swing.ActionMap;
- import javax.swing.ImageIcon;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
  import javax.swing.InputMap;
  import javax.swing.JButton;
  import javax.swing.JComponent;
@@ -412,11 +413,11 @@
          System.out.println("Feeding: " + foodType);
          
          game.checkState();
-         if((game.validState() || game.getPet().getState() == "angry") && game.feed(currentImageIndexFood) ){
-             // Successfully fed the pet
-             System.out.println("Fed the pet!");
-             // You could add animation or sound effects here
-         }
+         if((game.validState() || game.getPet().getState() == "angry") && game.feed(currentImageIndexFood)) {
+            // Successfully fed the pet
+            System.out.println("Fed the pet!");
+            // The Game class will handle refreshing the UI
+        }
          else{
              // On cooldown or other failure
              System.out.println("Cannot feed pet right now. Try again later.");
