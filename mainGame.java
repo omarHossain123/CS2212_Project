@@ -741,14 +741,29 @@ import javax.swing.JFrame;
         actions.setVisible(true);
     }
  
-     private void inventoryActionPerformed(java.awt.event.ActionEvent evt) {
+    private void inventoryActionPerformed(java.awt.event.ActionEvent evt) {
         game.getInventory().setScore(game.getScore());
-        float tempScore = (float) game.getInventory().getScore();
+
         InventoryGUI inventoryWindow = new InventoryGUI(game.petType(), game.getInventory());
-        tempScore = (float) (game.getScore() - tempScore);
-        game.increaseScore(-tempScore);
+
+
         // Set the default close operation to DISPOSE_ON_CLOSE instead of EXIT_ON_CLOSE
         inventoryWindow.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+
+        // Add a WindowListener to detect when the InventoryGUI is closed
+        inventoryWindow.addWindowListener(new java.awt.event.WindowAdapter() {
+
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                System.out.println("InventoryGUI has been closed!");
+
+                // Perform any post-close actions here
+                float tempScore = (float) game.getInventory().getScore();
+                tempScore = (float) (game.getScore() - tempScore);
+                game.increaseScore(-tempScore);
+            }
+        });
+
         // Center inventory window relative to the main game window
         inventoryWindow.setLocationRelativeTo(this);
         inventoryWindow.setVisible(true);
