@@ -161,19 +161,44 @@ public class Game {
         // Force UI refresh immediately
         refreshUI(); 
         
-        // Significant health boost
-        pet.increaseHealth(30);
-        
         // Small happiness penalty (pets don't like vets!)
-        pet.decrementHappiness(5);
+        pet.decrementHappiness(10);
         
         // Update score
-        increaseScore(20);
+        increaseScore(-20);
         
         // Set cooldown timer
         lastVetTime = currentTime;
         
-        System.out.println("Pet visited the vet! Health: " + pet.getHealth());
+        // Get the amount of health to restore (30 total)
+        final int totalHealthIncrease = 50;
+        final int healingSteps = 1; // Number of steps to spread the healing over
+        final int healthPerStep = totalHealthIncrease / healingSteps;
+        
+        // Create a timer for gradual health increase
+        final Timer healingTimer = new Timer();
+        healingTimer.scheduleAtFixedRate(new TimerTask() {
+            private int stepsRemaining = healingSteps;
+            
+            @Override
+            public void run() {
+                if (stepsRemaining > 0 && !pet.getState().equals("dead")) {
+                    // Add health for this step
+                    pet.increaseHealth(healthPerStep);
+                    
+                    // Update UI to show progress
+                    refreshUI();
+                    
+                    stepsRemaining--;
+                    System.out.println("Healing step completed. Health: " + pet.getHealth());
+                } else {
+                    // Healing complete or pet died, cancel timer
+                    healingTimer.cancel();
+                }
+            }
+        }, 0, TEMP_EMOTION_DURATION / healingSteps); // Spread healing evenly over the duration
+        
+        System.out.println("Pet visited the vet! Starting treatment...");
         
         // Schedule restoration of original state after emotion duration
         Timer stateRestoreTimer = new Timer();
