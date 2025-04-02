@@ -81,18 +81,30 @@ import javax.swing.JComponent;
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Update game state
+                game.changeState();
                 game.checkState();
-                game.increaseScore(1);
+                if(game.getPet().getState() != "default"){
+                    // Check if the pet is dead
+                    if (game.getPet().getHealth() <= 0) {
+                        // Stop the timer and show game over message
+                        timer.stop();
+                        return;
+                    }
+                
+                }
+                else{
+                    game.increaseScore(1);
                 gameScore = (int) game.getScore();
+                }
                 
                 // Update pet stats
                 game.gameDecrement();
-                
+                //
                 // Update progress bars to reflect current pet state
                 updateProgressBars();
                 
                 // Update the score label with leading zeros (17 digits)
-                scoreLabel.setText(String.format("%017d", gameScore));
+                scoreLabel.setText(String.format("%017d", (int)game.getScore()));
             }
         });
 
@@ -297,7 +309,7 @@ import javax.swing.JComponent;
      */
     private void sleep() {
         // Put pet to sleep
-        boolean sleeping = game.gotToBed();
+        boolean sleeping = game.goToBed();
         
         if (sleeping) {
             // Update progress bars to reflect changes

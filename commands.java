@@ -20,7 +20,8 @@
   * @author Jacob
   */
  public class commands extends javax.swing.JFrame {
-     
+    public int giftList = 0;
+    public int foodList = 0;
      private final String[] button12Images = {
          "assets\\images\\itemSprites\\orang.png",
          "assets\\images\\itemSprites\\popsicle.png",
@@ -328,7 +329,7 @@
      private void takeToVetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_takeToVetActionPerformed
          // Take pet to vet to increase health
          game.checkState();
-         if(game.takeToVet()){
+         if(game.validState() && game.takeToVet()){
              // Successfully took pet to vet
              System.out.println("Pet has been treated by the vet!");
              // You could add animation or sound effects here
@@ -342,8 +343,10 @@
      private void walkPetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_walkPetActionPerformed
          // Take pet for a walk to improve health and happiness
          game.checkState();
-         if(game.walk()){
+         if( (game.validState() || game.getPet().getState() == "angry") && game.walk()){
              // Successfully walked pet
+             System.out.println(game.validState());
+             System.out.println(game.getPet().getState() == "angry");
              System.out.println("Took pet for a walk!");
              // You could add animation or sound effects here
          }
@@ -357,7 +360,7 @@
          // Put pet to sleep to restore sleep stat
          System.out.println("Sleep button pressed");
          game.checkState();
-         if(game.gotToBed()){
+         if(game.validState() && game.goToBed()){
              System.out.println("Pet is now sleeping!");
              // You could add animation or sound effects here
          }
@@ -369,9 +372,12 @@
      private void playActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playActionPerformed
          // Play with pet to increase happiness
          game.checkState();
-         if(game.play()){
+         if( (game.validState() || game.getPet().getState() == "angry") && game.play()){
              // Successfully played with pet
+
              System.out.println("Playing with pet!");
+             System.out.println(game.validState());
+             System.out.println(game.getPet().getState() == "angry");
              // You could add animation or sound effects here
          }
          else{
@@ -387,7 +393,7 @@
          System.out.println("Giving gift: " + giftType);
          
          game.checkState();
-         if(game.giveGift()){
+         if((game.validState() || game.getPet().getState() == "angry") && game.giveGift() ){
              // Successfully gave gift to pet
              System.out.println("Gave a gift to the pet!");
              // You could add animation or sound effects here
@@ -405,7 +411,7 @@
          System.out.println("Feeding: " + foodType);
          
          game.checkState();
-         if(game.feed()){
+         if((game.validState() || game.getPet().getState() == "angry") && game.feed() ){
              // Successfully fed the pet
              System.out.println("Fed the pet!");
              // You could add animation or sound effects here

@@ -32,41 +32,97 @@ public class Game {
      */
     public void gameDecrement() {
         // Rate at which stats decrease
-        double healthRate = 0.1;
-        double happinessRate = 0.2;
-        double hungerRate = 0.25;
-        double sleepRate = 0.15;
-        
-        // Apply decrements
-        pet.decrementHealth(healthRate);
-        pet.decrementHappiness(happinessRate);
-        pet.decrementHunger(hungerRate);
-        pet.decrementSleep(sleepRate);
+        // double healthRate = 0.1;
+        // double happinessRate = 0.2;
+        // double hungerRate = 0.25;
+        // double sleepRate = 0.15;
+        pet.increment();
         
         // Check for critical conditions
         checkState();
     }
-    
+    public boolean changeState(){
+        if (pet.getState() == "hungry") {
+            if(pet.getHunger() != 0){
+                System.out.println(pet.getHunger());
+                pet.setState("default");
+                pet.updateRates(3);
+                return true;
+            }
+            
+        } else if (pet.getState() == "angry") {
+            
+            if(pet.getHunger() != 0){
+                pet.setState("default");
+                pet.updateRates(3);
+                return true;
+            }
+          
+
+           
+        } else if (pet.getState() == "sleep") {
+            
+            if(pet.getSleep() >= pet.getMaxSleep()){
+                pet.setState("default");
+                pet.updateRates(3);
+                return true;
+            }
+            
+        } 
+            return false;
+        
+    }
     /**
      * Checks the pet's state and updates it accordingly
      * @return The current state of the pet
      */
     public String checkState() {
-        // Check if the pet is in a critical state
-        if (pet.getHealth() <= 20) {
-            pet.setState("sick");
-        } else if (pet.getHunger() <= 20) {
+
+        if (pet.getHealth() <= 0) {
+            pet.setState("dead");
+            pet.updateRates(0);
+            return "dead";
+        } else if (pet.getSleep() <= 0 && pet.getState() != "sleep") {
+            pet.decrementHealth(15);
+            if (pet.getHealth() != 0) {
+                pet.setState("sleep");
+                pet.updateRates(1);
+                return "sleep";
+            } else {
+                pet.setState("dead");
+                pet.updateRates(0);
+                return "dead";
+            }
+            
+        } 
+        else if ((pet.getHunger() <= 0) && (pet.getState() != "hungry")) {
+            System.out.println("Retarded" + pet.getState());
             pet.setState("hungry");
-        } else if (pet.getSleep() <= 20) {
-            pet.setState("tired");
-        } else if (pet.getHappiness() <= 20) {
-            pet.setState("sad");
-        } else {
-            pet.setState("normal");
+            pet.decrementHealth(15);
+            pet.updateRates(2);
+            return "hungry";
+        }else if (pet.getHappiness() <= 0 && pet.getState() != "angry" ) {
+            pet.setState("angry");
+            return "angry";
         }
-        
-        return pet.getState();
+        return "default";
+
     }
+
+    // public String checkState() {
+    //     // Check if the pet is in a critical state
+    //     if (pet.getHealth() == 0) {
+    //         pet.setState("sick");
+    //     } else if (pet.getHunger() == 0) {
+    //         pet.setState("hungry");
+    //     } else if (pet.getSleep() == 0) {
+    //         pet.setState("tired");
+    //     } else if (pet.getHappiness() == 0) {
+    //         pet.setState("sad");
+    //     } 
+        
+    //     return pet.getState();
+    // }
     
     /**
      * Feeds the pet to increase hunger and potentially happiness
@@ -127,7 +183,7 @@ public class Game {
      * Puts the pet to sleep to restore sleep stat
      * @return true if the pet went to sleep successfully, false if on cooldown
      */
-    public boolean gotToBed() {
+    public boolean goToBed() {
         long currentTime = System.currentTimeMillis();
         
         // Check if the action is on cooldown
@@ -135,18 +191,26 @@ public class Game {
             System.out.println("Sleep action is on cooldown!");
             return false;
         }
+
+        if ((pet.getState()!= "dead") || (pet.getState()!= "angry") || (pet.getState() != "sleep")) {
+            pet.setState("sleep");
+            // Restore sleep
+            
         
-        // Restore sleep
-        pet.increaseSleep(25);
         
-        // Update score
-        increaseScore(15);
+        
         
         // Set cooldown timer
-        lastSleepTime = currentTime;
+            lastSleepTime = currentTime;
+            pet.updateRates(1);
+            System.out.println("Pet is sleeping! Sleep: " + pet.getSleep());
+         return true;
+        } else {
+            return false;
+        }
+
         
-        System.out.println("Pet is sleeping! Sleep: " + pet.getSleep());
-        return true;
+        
     }
     
     /**
@@ -367,6 +431,14 @@ public class Game {
     public void setLastWalkTime(long lastWalkTime) {
         this.lastWalkTime = lastWalkTime;
     }
+    public boolean validState() {
+        if ((pet.getState() == "default") || (pet.getState() == "hungry")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 
     /**
      * Sets the score to a specific value

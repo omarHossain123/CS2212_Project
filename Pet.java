@@ -28,10 +28,7 @@ import java.io.Serializable;
         
         public Pet(String type) {
             this.state = "default";
-            sleepRate = -1;
-            healthRate = 0;
-            happinessRate = -1;
-            hungerRate = -1;
+            updateRates(3);
             switch (type) {
                 case "Debatchi":
                     this.health = 120.0;
@@ -67,7 +64,7 @@ import java.io.Serializable;
                     this.maxSleep = 85.0;
                     this.type = "Kikitchi";
                     break;
-                case "Mameitchi":
+                case "Mametchi":
                     this.health = 110.0;
                     this.happiness = 85.0;
                     this.sleep = 90.0;
@@ -131,25 +128,33 @@ import java.io.Serializable;
                 case 1:
                 sleepRate = 1;
                 healthRate = 0;
-                happinessRate = -1;
-                hungerRate = -1;
+                happinessRate = 0.4;
+                hungerRate = 0.4;
                 break;
                 case 2:
-                healthRate = -5;
-                happinessRate = -1;
-                hungerRate = -1;
+                healthRate = -1;
+                System.out.println("healthRate: " + healthRate);
+                System.out.println("Health" + health);
+                happinessRate = 0.7;
+                hungerRate = 0.7;
                 break;
-
+                case 3:
+                sleepRate = -10;
+                healthRate = 0;
+                happinessRate = 0.4;
+                hungerRate = 0.4;
+                break;
             }
         }
 
     
         public void increment(){
-          sleep +=   sleepRate;
-        health += healthRate;
-        happiness += happinessRate;
-        hunger += hungerRate;
+        increaseSleep(sleepRate);
+        increaseHealth(healthRate);
+        decrementHappiness(happinessRate);
+        decrementHunger(hungerRate);
         }
+       
         public void setName(String name) {
             this.name = name;
         }
@@ -170,6 +175,9 @@ import java.io.Serializable;
             this.health += increment;
             if (this.health > this.maxHealth) {
                 this.health = this.maxHealth;
+            }
+            if (this.health < 0) {
+                this.health = 0;
             }
         }
         
@@ -192,6 +200,10 @@ import java.io.Serializable;
             if (this.sleep > this.maxSleep) {
                 this.sleep = this.maxSleep;
             }
+            if (this.sleep < 0) {
+                this.sleep = 0;
+            }
+            
         }
         
         public void decrementHealth(double decrement) {
