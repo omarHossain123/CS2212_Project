@@ -144,7 +144,7 @@ public class Pet implements Serializable {
                 break;
                 case 3:
                 sleepRate = -0.4;
-                healthRate = -0.4;
+                healthRate = -0.3;
                 happinessRate = 0.4;
                 hungerRate = 0.4;
                 break;

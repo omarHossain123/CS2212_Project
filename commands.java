@@ -480,7 +480,11 @@
       */
       private int getInventoryCountForGift(int giftIndex) {
         // In the inventory, gifts are at indices 3, 4, 5
-        int inventoryIndex = giftIndex + 3;
+        int temp = giftIndex - 2;
+        if(temp < 0) {
+            temp *= -1;
+        }
+        int inventoryIndex = temp + 3;
         
         if (game != null && game.getInventory() != null) {
             Item[] items = game.getInventory().getInventory();
@@ -636,12 +640,17 @@
      private void giveGiftActionPerformed(java.awt.event.ActionEvent evt) {
          // Give gift to pet to increase happiness
          // Different gifts might have different effects based on the selected gift type
+         int temp = currentImageIndexGift- 2;
+         if(temp < 0) {
+             temp *= -1;
+         }
+         int inventoryIndex = temp + 3;
          String giftType = button11Images[currentImageIndexGift];
          System.out.println("Giving gift: " + giftType);
          System.out.println("Gift button pressed" + currentImageIndexGift);
          
          game.checkState();
-         if((game.validState() || game.getPet().getState() == "angry") && game.giveGift(currentImageIndexGift+3) ){
+         if((game.validState() || game.getPet().getState() == "angry") && game.giveGift(inventoryIndex) ){
              // Successfully gave gift to pet
              System.out.println("Gave a gift to the pet!");
              // Update the inventory count display after giving a gift

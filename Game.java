@@ -80,7 +80,7 @@ public class Game {
                 refreshUI();
                 return "dead";
             }
-        } else if ((pet.getHunger() <= 0) && !oldState.equals("hungry")) {
+        } else if ((pet.getHunger() <= 0) && !oldState.equals("hungry") && !oldState.equals("angry")) {
             // Pet is hungry - set hungry state and permanent discontent emotion
             pet.setState("hungry");
             pet.decrementHealth(15);
