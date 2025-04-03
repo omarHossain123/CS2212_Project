@@ -1,192 +1,201 @@
-# Virtual Pet Game
+# Virtual Pet Application
 
-## Group 15
+## Group 15 - CS2212 Winter 2025
 
-## Description
+**Team Members:**
 
-Virtual Pet Game is a desktop application that simulates caring for a virtual pet, similar to a Tamagotchi. Players select a pet type and must maintain its health, happiness, hunger, and sleep levels through various interactions. The game features:
+- Isa Alif
+- Omar Hossain
+- Hamza Khan
+- Ahmed Sinjab
+- Jacob Tran
 
-- Multiple pet types with different attributes (Debatchi, Tsuyopitchi, Kikitchi, Mametchi)
-- Real-time stat management (health, happiness, hunger, sleep)
-- Various pet interactions (feeding, playing, walking, vet visits, etc.)
-- Different pet emotions and states based on well-being
-- Save/load game functionality
-- Parental controls with time restrictions
+## Software Description
+
+The Virtual Pet Application is a modern implementation of the classic virtual pet concept (similar to Tamagotchi). Players select a pet character from several options and care for it by managing its health, happiness, hunger, and sleep levels. The game features a user-friendly graphical interface, save/load functionality, parental controls for managing play time, and an in-game shop system.
+
+Key features:
+
+- Multiple pet types with unique attributes (Debatchi, Kikitchi, Mametchi, Tsuyopitchi)
+- Real-time state management
+- Pet emotion system that responds to care
 - Inventory and shop system
+- Comprehensive save/load functionality
+- Parental controls for limiting play time and reviving a dead pet
+- Interactive actions (feeding, playing, walking, vet visits, etc.)
 
-## Required Libraries & Tools
+## Required Libraries and Tools
+
+### Required Software:
 
 - **Java Development Kit (JDK)** - Version 17 or higher
-- **Java Swing** - Built into JDK (for GUI components)
-- **javax.swing** - Built into JDK (for UI components)
-- **java.io** - Built into JDK (for file operations)
-- **java.util** - Built into JDK (for utility classes)
-- **java.time** - Built into JDK (for time operations)
-- **IDE** - VS Code was used for development, but any Java IDE will work
+- **Windows 10/11** operating system
 
-## Building from Source
+### Required Libraries:
 
-### Prerequisites
+- **Java Swing and AWT** (included in JDK)
+- No additional third-party libraries are required
 
-1. Install JDK 17 or higher:
+## Step-by-Step Build Guide
 
-   - Visit [Oracle's JDK download page](https://www.oracle.com/java/technologies/downloads/) or use OpenJDK
-   - Follow the installation instructions for your operating system
-   - Verify installation by running `java -version` in a terminal
+### 1. Install Java Development Kit (JDK)
 
-2. Install VS Code (optional, but recommended):
-   - Download from [VS Code website](https://code.visualstudio.com/)
-   - Install the "Extension Pack for Java" extension from the marketplace
-
-### Compiling the Project
-
-1. Clone the repository by using the commands `git clone (repo)` or extract the source code to a directory
-2. Open a terminal and navigate to the project directory
-3. Create a directory for the compiled classes:
+1. Download the JDK 17 or higher from Oracle's website
+2. Select the Windows x64 Installer option
+3. Run the downloaded installer and follow the prompts
+4. Accept the default installation locations
+5. Wait for the installation to complete
+6. Verify installation by opening Command Prompt and typing:
    ```
-   mkdir -p out/production
+   java -version
    ```
-4. Compile the Java files:
+   You should see version information for your installed JDK
 
+### 2. Download and Extract the Source Code
+
+1. Unzip the project files to a folder of your choice (e.g., C:\VirtualPet)
+2. The folder structure should include:
+   - group15/ (contains all Java source files)
+   - group15/assets/ (contains images and other resources)
+   - group15/saves (contains all save files made, should be empty when starting)
+
+### 4. Compile the Source Code
+
+#### Using Command Prompt:
+
+1. Open Command Prompt
+2. Navigate to the project directory:
    ```
-   javac -d out/production src/*.java
+   cd C:\VirtualPet
+   ```
+3. Create a 'build' directory:
+   ```
+   mkdir build
+   ```
+4. Compile all Java files:
+   ```
+   javac -d build src/*.java
+   ```
+5. Copy the assets folder to the build directory:
+   ```
+   xcopy /E /I assets build\assets
    ```
 
-   Note: Adjust the path if your Java files are in a different directory
+#### Using Visual Studio Code:
 
-5. Copy the assets folder to the output directory:
+1. Open VS Code
+2. Select "File" > "Open Folder" and choose the project directory
+3. Install the "Extension Pack for Java" if not already installed
+4. Open the Explorer view (Ctrl+Shift+E)
+5. Right-click on the src folder and select "Build Java"
+
+## Running the Application
+
+### Running from Command Line:
+
+1. Open Command Prompt
+2. Navigate to the build directory:
    ```
-   cp -r assets out/production/
+   cd C:\VirtualPet\build
+   ```
+3. Run the application:
+   ```
+   java UserInterface
    ```
 
-## Running the Game
+### Running from Visual Studio Code:
 
-### From Compiled Classes
-
-1. Navigate to the directory containing the compiled classes
-2. Run the application with:
-   ```
-   java -cp out/production UserInterface
-   ```
-
-### From an IDE
-
-1. Open the project in your preferred Java IDE
-2. Set the main class to `UserInterface`
-3. Run the project using the IDE's run functionality
+1. Open the project in VS Code
+2. Navigate to the UserInterface.java file
+3. Click the "Run" button (triangle icon) in the upper right
+4. Select "Run Java"
 
 ## User Guide
 
-### Getting Started
+### Main Menu
 
-1. Launch the game
-2. From the main menu, select "Start New Game"
-3. Choose your pet type:
-   - Debatchi: Balanced stats with higher health
-   - Tsuyopitchi: Higher hunger and happiness stats
-   - Kikitchi: Balanced attributes
-   - Mametchi: Higher health and sleep stats
-4. Enter a name for your save file when prompted
-5. The main game screen will appear with your pet
+The main menu provides access to the following options:
 
-### Game Controls
+- **Start New Game**: Create a new virtual pet
+- **Continue Game**: Load a previously saved game
+- **Tutorial**: View instructions on how to play
+- **Parental Controls**: Configure play time restrictions
+- **Exit**: Close the application
 
-- **Mouse**: Click buttons to interact with UI elements
-- **Keyboard Shortcuts**:
-  - ESC: Open settings menu
-  - P: Pause/resume game
-  - F: Feed pet
-  - G: Give gift to pet
-  - C: Open commands menu
-  - Ctrl+S: Save game
+### Selecting a Pet
 
-### UI Elements
+1. Click "Start New Game" from the main menu
+2. Browse the available pet types: Debatchi, Kikitchi, Mametchi, Tsuyopitchi
+3. Click "About" to learn more about each pet's characteristics
+4. Click "Choose" on your preferred pet
+5. Enter a name for your pet and confirm your selection
+6. Enter a name for the save file that will store that game
 
-- **Top Left**: Commands and Shop buttons
-- **Top Right**: Score and Settings
-- **Center**: Your pet
-- **Bottom**: Status bars for Health, Happiness, Hunger, and Sleep
+### Game Interface
 
-### Pet Care
+The main game screen displays:
 
-1. **Keep an eye on the status bars**:
+- Your pet in the center of the screen
+- Status bars at the bottom showing Health, Happiness, Sleep, and Hunger levels
+- Score display showing your current points in the top right
+- Control buttons for accessing various functions
 
-   - Health (Green): If it reaches zero, your pet will die
-   - Happiness (Red): If it reaches zero, your pet becomes angry
-   - Hunger (Brown): If it reaches zero, your pet becomes hungry and loses health
-   - Sleep (Blue): If it reaches zero, your pet falls asleep automatically
+### Caring for Your Pet
 
-2. **Interact with your pet**:
+Use the "Commands" button or keyboard shortcuts to perform actions:
 
-   - Commands Menu: Access various interactions like feeding, playing, etc.
-   - Shop: Buy items for your pet
+- **Feed (F key)**: Give food to your pet to increase hunger level
+- **Gift (G key)**: Give a gift to increase happiness
+- **Play**: Engage in play to boost happiness
+- **Walk**: Take your pet for a walk to improve multiple stats
+- **Sleep**: Put your pet to bed to restore sleep
+- **Vet**: Take your pet to the vet to restore health
 
-3. **Pet States**:
-   - Default: Normal state
-   - Hungry: When hunger is depleted
-   - Angry: When happiness is depleted
-   - Sleep: When sleep is depleted
-   - Dead: When health reaches zero
+### Shop & Inventory
 
-### Saving and Loading
+1. Click the "Shop" button to access the store
+2. Purchase items using points from your score
+3. Items include various foods and toys that affect different pet stats
+4. Manage your inventory carefully as space is limited
 
-- Click the Save button or press Ctrl+S to save your game
-- From the main menu, click "Continue Game" to load a saved game
+### Saving & Loading
 
-## Accounts & Parental Controls
+1. Press Ctrl+S or click the save button to save your game
+2. To continue a saved game, select "Continue Game" from the main menu and choose your save file
 
-### Default Access
+### Game Over Conditions
 
-The game does not require accounts or passwords to access basic functionality.
+Your pet will die if:
 
-### Parental Controls
+- Health reaches zero
 
-Parental controls restrict when the game can be played.
+### Keyboard Shortcuts
 
-#### Accessing Parental Controls
+- **F**: Feed your pet
+- **G**: Give a gift
+- **P**: Pause the game
+- **C**: Open commands menu
+- **Esc**: Open settings
+- **Ctrl+S**: Save the game
 
-1. The parental controls settings are stored in `saves/parental_controls.dat`
-2. Time restrictions can be set by modifying this file through the ParentalControls class
-3. By default, the settings include:
-   - Start time: Default is set in the morning
-   - End time: Default is set in the evening
-   - Daily playtime limit: Not enforced by default
+## Parental Controls
 
-#### Modifying Parental Controls
+The game includes a parental control system to limit play time:
 
-To modify parental controls, you'll need to access the settings through the ParentalControls class. This can be done by:
+### Accessing Parental Controls
 
-1. Adding a UI for parental controls (requires modifying the source code)
-2. Directly modifying the `parental_controls.dat` file (requires knowledge of Java serialization)
+1. From the main menu, click "Parental Controls"
+2. The default PIN is **123**
+3. After entering the PIN, you can:
+   - Enable/disable time restrictions
+   - Set allowed play hours (start and end time)
+   - View play statistics
+   - Revive a dead pet from specific save files
 
 ## Additional Information
 
-### File Structure
-
-- `assets/`: Contains all game assets (images, etc.)
-- `saves/`: Directory where save files are stored
-- Main Java classes:
-  - `UserInterface.java`: Main entry point and UI handler
-  - `mainGame.java`: Main game window
-  - `Pet.java`: Pet class with attributes and states
-  - `Game.java`: Game logic
-  - Other supporting classes for inventory, commands, etc.
-
-### Known Issues
-
-- Save Game Functionality is not working as intended and saves the chosen pet but all other features are reset.
-- Since the Save Game does not work as intended the Revive pet in the Parent controls does not either as it needs to access the save files to see if a pet is dead.
-
-### Development Information
-
-- Developed using VS Code and GitLab for version control
-- Java was chosen for cross-platform compatibility
-- Swing was used for UI components
-
-## Troubleshooting
-
-### Common Issues
-
-- **Game doesn't start**: Ensure Java is properly installed and PATH is configured
-- **Missing assets**: Verify that the assets folder is in the correct location
-- **Save files not found**: Check if the saves directory exists and has write permissions
+- The game automatically saves statistics on exit
+- Pet emotions and animations change based on their state and your interactions
+- Different pets have different base stats and respond differently to care
+- The fourth pet (Tsuyopitchi) has special characteristics for more experienced players
+- Background scenes change depending on the activity (like visiting the vet)
