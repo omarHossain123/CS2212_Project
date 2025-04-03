@@ -187,7 +187,6 @@ import javax.swing.JFrame;
         updateProgressBars();
         
         // Setup depletion rates based on pet type
-        setupDepleteProgressBars();
         
         setupKeyBindings();
         
@@ -336,23 +335,7 @@ import javax.swing.JFrame;
         refreshPetImage();
     }
     
-    /**
-     * Sets up the depletion rates for progress bars based on pet type
-     */
-    private void setupDepleteProgressBars() {
-        // Get depletion rates based on pet type
-        double sleepRate = 1.0;
-        double happinessRate = 1.0;
-        double hungerRate = 1.0;
-        
-        // Adjust rates based on pet type if needed
-        String petType = currentPet.getType();
-        
-        // Setup the progress bar depletion threads
-        depleteProgressBar(sleepBar, 100, 1, 6000);
-        depleteProgressBar(happinessBar, 100, 1, 6000);
-        depleteProgressBar(hungerBar, 100, 1, 6000);
-    }
+  
 
     /**
      * Loads the pet image based on current state and emotion
