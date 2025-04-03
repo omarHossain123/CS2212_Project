@@ -1,9 +1,11 @@
+import java.io.Serializable;
+
 /**
  * The Item class represents an item in the player's inventory.
  * Each item has a type, a label, a hunger bonus, and a happiness bonus.
  * The class allows for managing the quantity of an item and its effects on the player's pet.
  */
-public class Item {
+public class Item implements Serializable{
 
     /** The number of items in the inventory. */
     private int numberItem;

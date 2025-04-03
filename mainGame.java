@@ -38,7 +38,7 @@ import javax.swing.JFrame;
   */
   public class mainGame extends javax.swing.JFrame {
     public Game game;
-     
+    private float openedInventory;
     String basePath = "assets\\images\\petSprites";
 
     private int gameScore = 0; // Add this as a class variable
@@ -54,30 +54,45 @@ import javax.swing.JFrame;
      * @param saveData Optional save data to restore (can be null for new game)
      */
     public mainGame(Pet selectedPet, GameSaveData saveData) {
+        System.out.println("DEBUG - Creating mainGame with pet: " + selectedPet.getType());
         this.currentPet = selectedPet;
-
-        // Create a new game with the pet type only ONCE
+    
+        // If we have save data, log what we're about to restore
+        if (saveData != null) {
+            System.out.println("DEBUG - Save data provided: Pet: " + saveData.getPet().getType() + 
+                              ", Health: " + saveData.getPet().getHealth() + 
+                              ", Score: " + saveData.getScore());
+        } else {
+            System.out.println("DEBUG - No save data provided, creating new game");
+        }
+    
+        // IMPORTANT: Create game with the correct pet type
         game = new Game(selectedPet.getType());
+        System.out.println("DEBUG - Game created with pet type: " + selectedPet.getType());
         
         // Set the UI reference
         game.setGameUI(this);
-
-        setupRandomBlinking();
-        setupRandomIdleAnimations();
-        
-        // If we have save data, restore the game state
+    
+        // IMPORTANT: Restore from save data BEFORE initializing UI and other components
         if (saveData != null) {
-            // Restore all game data from the save
+            System.out.println("DEBUG - Attempting to restore from save...");
             game.restoreFromSave(saveData);
             
             // Update the current pet reference to use the one from the saved game
             this.currentPet = game.getPet();
+            
+            System.out.println("DEBUG - After restore: Pet health: " + game.getPet().getHealth() + 
+                              ", Score: " + game.getScore());
         }
+    
+        // After restoring save data, then set up the UI and other components
+        setupRandomBlinking();
+        setupRandomIdleAnimations();
         
         // Initialize the UI components
         initComponents();
         addSaveButton();
-
+    
         // Set window to full screen on startup
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         
@@ -772,7 +787,7 @@ import javax.swing.JFrame;
         game.getInventory().setScore(game.getScore());
 
         InventoryGUI inventoryWindow = new InventoryGUI(game.petType(), game.getInventory());
-
+        openedInventory = (float) game.getInventory().getScore();
 
         // Set the default close operation to DISPOSE_ON_CLOSE instead of EXIT_ON_CLOSE
         inventoryWindow.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -786,7 +801,8 @@ import javax.swing.JFrame;
 
                 // Perform any post-close actions here
                 float tempScore = (float) game.getInventory().getScore();
-                tempScore = (float) (game.getScore() - tempScore);
+                tempScore = (float) ( openedInventory- tempScore);
+                System.out.println(tempScore + "------------------------------------------------------------------------");
                 game.increaseScore(-tempScore);
             }
         });

@@ -583,20 +583,34 @@ public class Game {
      * @param saveData The saved game data to restore from
      */
     public void restoreFromSave(GameSaveData saveData) {
-        if (saveData == null) return;
+        if (saveData == null) {
+            System.out.println("WARNING: Attempting to restore from null save data");
+            return;
+        }
+        
+        System.out.println("DEBUG - Starting restore from save data...");
         
         // Restore pet
         if (saveData.getPet() != null) {
             this.pet = saveData.getPet();
             this.petType = this.pet.getType();
+            System.out.println("DEBUG - Restored pet: " + this.pet.getType() + 
+                           ", Health: " + this.pet.getHealth());
+        } else {
+            System.out.println("WARNING: Save data has null pet");
         }
         
         // Restore score
         this.score = saveData.getScore();
+        System.out.println("DEBUG - Restored score: " + this.score);
         
         // Restore inventory
         if (saveData.getInventory() != null) {
             this.inventory = saveData.getInventory();
+            System.out.println("DEBUG - Restored inventory");
+        } else {
+            System.out.println("WARNING: Save data has null inventory, creating default");
+            this.inventory = new Inventory(this.petType, this.score);
         }
         
         // Restore cooldown timers
@@ -606,5 +620,8 @@ public class Game {
         this.lastVetTime = saveData.getLastVetTime();
         this.lastPlayTime = saveData.getLastPlayTime();
         this.lastWalkTime = saveData.getLastWalkTime();
+        System.out.println("DEBUG - Restored cooldown timers");
+        
+        System.out.println("DEBUG - Restore from save completed");
     }
 }
