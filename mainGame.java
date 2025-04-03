@@ -34,11 +34,11 @@ import javax.swing.JFrame;
  
  /**
   *
-  * @author Jacob
+  * @author Omar and Ahmed
   */
   public class mainGame extends javax.swing.JFrame {
     public Game game;
-     
+    private float openedInventory;
     String basePath = "assets\\images\\petSprites";
 
     private int gameScore = 0; // Add this as a class variable
@@ -54,32 +54,59 @@ import javax.swing.JFrame;
      * @param saveData Optional save data to restore (can be null for new game)
      */
     public mainGame(Pet selectedPet, GameSaveData saveData) {
+        System.out.println("DEBUG - Creating mainGame with pet: " + selectedPet.getType());
         this.currentPet = selectedPet;
-
-        // Create a new game with the pet type only ONCE
+    
+        // If we have save data, log what we're about to restore
+        if (saveData != null) {
+            System.out.println("DEBUG - Save data provided: Pet: " + saveData.getPet().getType() + 
+                              ", Health: " + saveData.getPet().getHealth() + 
+                              ", Score: " + saveData.getScore());
+        } else {
+            System.out.println("DEBUG - No save data provided, creating new game");
+        }
+    
+        // IMPORTANT: Create game with the correct pet type
         game = new Game(selectedPet.getType());
+        System.out.println("DEBUG - Game created with pet type: " + selectedPet.getType());
         
         // Set the UI reference
         game.setGameUI(this);
-
-        setupRandomBlinking();
-        setupRandomIdleAnimations();
-        
-        // If we have save data, restore the game state
+    
+        // IMPORTANT: Restore from save data BEFORE initializing UI and other components
         if (saveData != null) {
-            // Restore all game data from the save
+            System.out.println("DEBUG - Attempting to restore from save...");
             game.restoreFromSave(saveData);
             
             // Update the current pet reference to use the one from the saved game
             this.currentPet = game.getPet();
+            
+            System.out.println("DEBUG - After restore: Pet health: " + game.getPet().getHealth() + 
+                              ", Score: " + game.getScore());
         }
+    
+        // After restoring save data, then set up the UI and other components
+        setupRandomBlinking();
+        setupRandomIdleAnimations();
         
         // Initialize the UI components
         initComponents();
         addSaveButton();
-
+    
         // Set window to full screen on startup
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        // indow listener to save game on close and exit properly
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                // Save the game first
+                UserInterface.saveGame();
+                
+                // Then exit properly
+                UserInterface.safeExit();
+            }
+        });
         
         // Add component listener to handle resizing
         this.addComponentListener(new ComponentAdapter() {
@@ -160,7 +187,6 @@ import javax.swing.JFrame;
         updateProgressBars();
         
         // Setup depletion rates based on pet type
-        setupDepleteProgressBars();
         
         setupKeyBindings();
         
@@ -309,23 +335,7 @@ import javax.swing.JFrame;
         refreshPetImage();
     }
     
-    /**
-     * Sets up the depletion rates for progress bars based on pet type
-     */
-    private void setupDepleteProgressBars() {
-        // Get depletion rates based on pet type
-        double sleepRate = 1.0;
-        double happinessRate = 1.0;
-        double hungerRate = 1.0;
-        
-        // Adjust rates based on pet type if needed
-        String petType = currentPet.getType();
-        
-        // Setup the progress bar depletion threads
-        depleteProgressBar(sleepBar, 100, 1, 6000);
-        depleteProgressBar(happinessBar, 100, 1, 6000);
-        depleteProgressBar(hungerBar, 100, 1, 6000);
-    }
+  
 
     /**
      * Loads the pet image based on current state and emotion
@@ -772,7 +782,7 @@ import javax.swing.JFrame;
         game.getInventory().setScore(game.getScore());
 
         InventoryGUI inventoryWindow = new InventoryGUI(game.petType(), game.getInventory());
-
+        openedInventory = (float) game.getInventory().getScore();
 
         // Set the default close operation to DISPOSE_ON_CLOSE instead of EXIT_ON_CLOSE
         inventoryWindow.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -786,7 +796,8 @@ import javax.swing.JFrame;
 
                 // Perform any post-close actions here
                 float tempScore = (float) game.getInventory().getScore();
-                tempScore = (float) (game.getScore() - tempScore);
+                tempScore = (float) ( openedInventory- tempScore);
+                System.out.println(tempScore + "------------------------------------------------------------------------");
                 game.increaseScore(-tempScore);
             }
         });

@@ -62,8 +62,8 @@ public class UserInterface {
                 if (saveName != null) {
                     currentSaveFile = saveName;
                     
-                    // Create a new game with the selected pet - using mainGame instead of mainGameNew
-                    mainGame game = new mainGame(currentPet, null);
+                    // Create a new game 
+                    mainGame game = new mainGame(currentPet, currentSaveData);
                     
                     // Add window listener to save game on close
                     game.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -106,8 +106,14 @@ public class UserInterface {
                     if (loadGame()) {
                         mainMenu.dispose();
                         
-                        // Create the game with loaded pet - using mainGame instead of mainGameNew
-                        mainGame game = new mainGame(currentPet, null);
+                        // IMPORTANT: Pass both the saved pet and the saved data
+                        // Make sure to use the pet from the save data
+                        Pet loadedPet = currentSaveData.getPet();
+                        System.out.println("DEBUG - Creating game with loaded pet: " + 
+                                           loadedPet.getType() + ", Health: " + loadedPet.getHealth());
+                        
+                        // Create the game with loaded pet and save data
+                        mainGame game = new mainGame(loadedPet, currentSaveData);
                         
                         // Add window listener to save game on close
                         game.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -231,10 +237,36 @@ public class UserInterface {
         
         // Create a GameSaveData object to store all relevant data
         GameSaveData saveData = new GameSaveData();
-        saveData.setPet(currentPet);
         
-        // If we found the game instance, we could save additional state here
-        // But for now we're just saving the pet data
+        // If we found the game instance, save all game state
+        if (gameInstance != null) {
+            Game game = gameInstance.game;
+            
+            // Save pet data - make sure to get the CURRENT pet from the game
+            saveData.setPet(game.getPet());
+            
+            // Save score
+            saveData.setScore(game.getScore());
+            
+            // Save inventory
+            saveData.setInventory(game.getInventory());
+            
+            // Save cooldown timers
+            saveData.setLastFeedTime(game.getLastFeedTime());
+            saveData.setLastGiftTime(game.getLastGiftTime());
+            saveData.setLastSleepTime(game.getLastSleepTime());
+            saveData.setLastVetTime(game.getLastVetTime());
+            saveData.setLastPlayTime(game.getLastPlayTime());
+            saveData.setLastWalkTime(game.getLastWalkTime());
+            
+            System.out.println("DEBUG - Saving game with pet: " + saveData.getPet().getType() + 
+                               ", Health: " + saveData.getPet().getHealth() + 
+                               ", Score: " + saveData.getScore());
+        } else {
+            // If we couldn't find the game instance, just save the current pet
+            saveData.setPet(currentPet);
+            System.out.println("DEBUG - Could not find game instance, only saving pet data");
+        }
         
         String savePath = SAVES_DIRECTORY + File.separator + currentSaveFile + ".dat";
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(savePath))) {
@@ -264,7 +296,7 @@ public class UserInterface {
         if (!saveFile.exists()) {
             return false;
         }
-
+    
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(savePath))) {
             Object loadedObject = ois.readObject();
             
@@ -273,8 +305,12 @@ public class UserInterface {
                 GameSaveData saveData = (GameSaveData) loadedObject;
                 currentPet = saveData.getPet();
                 
-                // Store the loaded save data to be used when creating mainGame
+                // Store the loaded save data
                 currentSaveData = saveData;
+                
+                System.out.println("DEBUG - Loaded game data: Pet: " + saveData.getPet().getType() + 
+                               ", Health: " + saveData.getPet().getHealth() + 
+                               ", Score: " + saveData.getScore());
                 
                 System.out.println("Game loaded successfully from " + savePath);
                 return true;
@@ -286,6 +322,8 @@ public class UserInterface {
                 // Create a new GameSaveData with just the pet
                 currentSaveData = new GameSaveData();
                 currentSaveData.setPet(currentPet);
+                
+                System.out.println("DEBUG - Loaded legacy pet data: " + currentPet.getType());
                 
                 System.out.println("Legacy game save loaded successfully from " + savePath);
                 return true;
@@ -321,10 +359,12 @@ public class UserInterface {
      */
     public static void safeExit() {
         if (isApplicationRunning) {
+            System.out.println("DEBUG - Saving session statistics and exiting...");
             long sessionDuration = (System.currentTimeMillis() - sessionStartTime) / 1000; // Convert to seconds
             ParentalControls.updatePlayStatistics(sessionDuration);
             isApplicationRunning = false;
         }
+        // Force exit with status code 0 (normal exit)
         System.exit(0);
     }
 }
