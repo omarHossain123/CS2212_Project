@@ -95,6 +95,18 @@ import javax.swing.JFrame;
     
         // Set window to full screen on startup
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+        // indow listener to save game on close and exit properly
+        this.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+                // Save the game first
+                UserInterface.saveGame();
+                
+                // Then exit properly
+                UserInterface.safeExit();
+            }
+        });
         
         // Add component listener to handle resizing
         this.addComponentListener(new ComponentAdapter() {

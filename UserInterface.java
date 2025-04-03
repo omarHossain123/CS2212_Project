@@ -359,10 +359,12 @@ public class UserInterface {
      */
     public static void safeExit() {
         if (isApplicationRunning) {
+            System.out.println("DEBUG - Saving session statistics and exiting...");
             long sessionDuration = (System.currentTimeMillis() - sessionStartTime) / 1000; // Convert to seconds
             ParentalControls.updatePlayStatistics(sessionDuration);
             isApplicationRunning = false;
         }
+        // Force exit with status code 0 (normal exit)
         System.exit(0);
     }
 }

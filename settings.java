@@ -222,6 +222,9 @@ public class settings extends javax.swing.JFrame {
     }
 
     private void mainMenuActionPerformed(java.awt.event.ActionEvent evt) {
+        // Save the current game before returning to main menu
+        UserInterface.saveCurrentGame();
+        
         // Close the current game window
         if (parentGame != null) {
             parentGame.dispose();
@@ -242,7 +245,11 @@ public class settings extends javax.swing.JFrame {
             JOptionPane.YES_NO_OPTION);
             
         if (confirmed == JOptionPane.YES_OPTION) {
-            System.exit(0);
+            // Save the game first
+            UserInterface.saveCurrentGame();
+            
+            // Then exit properly using the safeExit method
+            UserInterface.safeExit();
         }
     }
 }
