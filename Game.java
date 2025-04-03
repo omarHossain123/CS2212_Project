@@ -17,12 +17,12 @@ public class Game {
     private long lastWalkTime = 0;
     
     // Cooldown periods (in milliseconds)
-    private static final long FEED_COOLDOWN = 10000; // 10 seconds
-    private static final long GIFT_COOLDOWN = 15000; // 15 seconds
-    private static final long SLEEP_COOLDOWN = 20000; // 20 seconds
-    private static final long VET_COOLDOWN = 30000;   // 30 seconds
-    private static final long PLAY_COOLDOWN = 12000;  // 12 seconds
-    private static final long WALK_COOLDOWN = 18000;  // 18 seconds
+    public static final long FEED_COOLDOWN = 5000; 
+    public static final long GIFT_COOLDOWN = 5000; 
+    public static final long SLEEP_COOLDOWN = 15000; 
+    public static final long VET_COOLDOWN = 15000;   
+    public static final long PLAY_COOLDOWN = 10000;  
+    public static final long WALK_COOLDOWN = 10000;  
     
     // Temporary emotion duration
     private static final int TEMP_EMOTION_DURATION = 3000; // 3 seconds
@@ -80,7 +80,7 @@ public class Game {
                 refreshUI();
                 return "dead";
             }
-        } else if ((pet.getHunger() <= 0) && !oldState.equals("hungry")) {
+        } else if ((pet.getHunger() <= 0) && !oldState.equals("hungry") && !oldState.equals("angry")) {
             // Pet is hungry - set hungry state and permanent discontent emotion
             pet.setState("hungry");
             pet.decrementHealth(15);

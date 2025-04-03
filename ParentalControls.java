@@ -5,6 +5,8 @@ import java.io.*;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 
 /**
@@ -311,10 +313,8 @@ public class ParentalControls extends JDialog {
         JButton reviveButton = createStyledButton("Revive Pet", 130);
         reviveButton.setBounds(200, 290, 130, 40);
         reviveButton.addActionListener(e -> {
-            // Implement pet revival logic here
-            StyledDialog.showInformationDialog(this, 
-                "Pet revival feature not yet implemented", 
-                "Feature Unavailable");
+            // Call the newly implemented revive pet method
+            revivePet();
         });
         contentPanel.add(reviveButton);
 
@@ -750,5 +750,147 @@ public class ParentalControls extends JDialog {
         long totalPlayTime = 0;
         long averagePlayTime = 0;
         int sessionsCount = 0;
+    }
+
+    private void revivePet() {
+        // Get list of save files
+        List<String> saveFiles = getSaveFilesWithDeadPets();
+        
+        if (saveFiles.isEmpty()) {
+            StyledDialog.showInformationDialog(this, 
+                "No dead pets found in any save files.", 
+                "No Dead Pets");
+            return;
+        }
+        
+        // Show dialog to select a dead pet save file
+        String selectedSave = StyledSaveSelector.showDialog(
+            this,
+            "Select a dead pet to revive:",
+            "Revive Pet",
+            saveFiles);
+        
+        if (selectedSave != null) {
+            try {
+                // Load the selected save file
+                File saveFile = new File("saves" + File.separator + selectedSave + ".dat");
+                
+                try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(saveFile))) {
+                    Object loadedObject = ois.readObject();
+                    
+                    GameSaveData saveData;
+                    if (loadedObject instanceof GameSaveData) {
+                        saveData = (GameSaveData) loadedObject;
+                    } else if (loadedObject instanceof Pet) {
+                        // Legacy support for old save files
+                        saveData = new GameSaveData();
+                        saveData.setPet((Pet) loadedObject);
+                    } else {
+                        throw new ClassNotFoundException("Unknown save file format");
+                    }
+                    
+                    // Check if the pet is actually dead
+                    Pet pet = saveData.getPet();
+                    if (pet == null || !pet.getState().equals("dead")) {
+                        StyledDialog.showInformationDialog(this, 
+                            "The selected save file does not contain a dead pet.", 
+                            "No Dead Pet");
+                        return;
+                    }
+                    
+                    // Revive the pet
+                    revivePetToNormalState(pet);
+                    
+                    // Reset save data
+                    saveData.setScore(0); // Reset score
+                    saveData.setLastFeedTime(0);
+                    saveData.setLastGiftTime(0);
+                    saveData.setLastSleepTime(0);
+                    saveData.setLastVetTime(0);
+                    saveData.setLastPlayTime(0);
+                    saveData.setLastWalkTime(0);
+                    
+                    // Save the revived pet
+                    try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(saveFile))) {
+                        oos.writeObject(saveData);
+                    }
+                    
+                    StyledDialog.showInformationDialog(this, 
+                        "Pet successfully revived!", 
+                        "Pet Revived");
+                    
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                    StyledDialog.showErrorDialog(this, 
+                        "Failed to revive pet: " + e.getMessage(), 
+                        "Revive Error");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                StyledDialog.showErrorDialog(this, 
+                    "An error occurred while reviving the pet.", 
+                    "Revive Error");
+            }
+        }
+    }
+    
+    /**
+     * Revives a pet by resetting its state and stats to maximum values
+     * @param pet The pet to revive
+     */
+    private void revivePetToNormalState(Pet pet) {
+        // Reset pet to its initial state with max values
+        pet.setState("default");
+        
+        // Reset all stats to maximum
+        pet.setHealth(pet.getMaxHealth());
+        pet.setHappiness(pet.getMaxHappiness());
+        pet.setHunger(pet.getMaxHunger());
+        pet.setSleep(pet.getMaxSleep());
+        
+        // Set emotion to neutral
+        pet.setEmotion("neutral", 0);
+        
+        // Update rates to default
+        pet.updateRates(3);
+    }
+    
+    /**
+     * Get a list of save files containing dead pets
+     * @return List of save file names with dead pets
+     */
+    private List<String> getSaveFilesWithDeadPets() {
+        List<String> deadPetSaves = new ArrayList<>();
+        File savesDir = new File("saves");
+        
+        if (savesDir.exists() && savesDir.isDirectory()) {
+            File[] files = savesDir.listFiles((dir, name) -> name.endsWith(".dat"));
+            
+            if (files != null) {
+                for (File file : files) {
+                    try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
+                        Object loadedObject = ois.readObject();
+                        
+                        Pet pet = null;
+                        if (loadedObject instanceof GameSaveData) {
+                            pet = ((GameSaveData) loadedObject).getPet();
+                        } else if (loadedObject instanceof Pet) {
+                            pet = (Pet) loadedObject;
+                        }
+                        
+                        // Check if the pet is dead
+                        if (pet != null && pet.getState().equals("dead")) {
+                            String name = file.getName();
+                            deadPetSaves.add(name.substring(0, name.length() - 4)); // Remove .dat
+                        }
+                    } catch (IOException | ClassNotFoundException e) {
+                        // Skip files that can't be read
+                        System.err.println("Could not read save file: " + file.getName());
+                    }
+                }
+            }
+        }
+        
+        return deadPetSaves;
     }
 }
