@@ -581,17 +581,52 @@
      private void takeToVetActionPerformed(java.awt.event.ActionEvent evt) {
         // Take pet to vet to increase health
         game.checkState();
-        if(isActionAllowed("Visit Vet") && game.takeToVet()){
+        
+        // Check if action is allowed
+        if (!isActionAllowed("Visit Vet")) {
+            return;
+        }
+        
+        // Check cooldown
+        long currentTime = System.currentTimeMillis();
+        long lastVetTime = game.getLastVetTime();
+        long vetCooldown = Game.VET_COOLDOWN;
+        long remainingCooldown = lastVetTime + vetCooldown - currentTime;
+        
+        if (remainingCooldown > 0) {
+            // Show cooldown popup
+            CommandCooldownPopup.showCooldownWarning(this, "Visit Vet", remainingCooldown, vetCooldown);
+            return;
+        }
+        
+        if (game.takeToVet()) {
             // Successfully took pet to vet
             System.out.println("Pet has been treated by the vet!");
-            // You could add animation or sound effects here
         }
     }
      
     private void walkPetActionPerformed(java.awt.event.ActionEvent evt) {
         // Take pet for a walk to improve health and happiness
         game.checkState();
-        if(isActionAllowed("Walk") && game.walk()){
+        
+        // Check if action is allowed
+        if (!isActionAllowed("Walk")) {
+            return;
+        }
+        
+        // Check cooldown
+        long currentTime = System.currentTimeMillis();
+        long lastWalkTime = game.getLastWalkTime();
+        long walkCooldown = Game.WALK_COOLDOWN;
+        long remainingCooldown = lastWalkTime + walkCooldown - currentTime;
+        
+        if (remainingCooldown > 0) {
+            // Show cooldown popup
+            CommandCooldownPopup.showCooldownWarning(this, "Walk", remainingCooldown, walkCooldown);
+            return;
+        }
+        
+        if (game.walk()) {
             // Successfully walked pet
             System.out.println("Took pet for a walk!");
         }
@@ -601,19 +636,53 @@
         // Put pet to sleep to restore sleep stat
         System.out.println("Sleep button pressed");
         game.checkState();
-        if(isActionAllowed("Sleep") && game.goToBed()){
+        
+        // Check if action is allowed
+        if (!isActionAllowed("Sleep")) {
+            return;
+        }
+        
+        // Check cooldown
+        long currentTime = System.currentTimeMillis();
+        long lastSleepTime = game.getLastSleepTime();
+        long sleepCooldown = Game.SLEEP_COOLDOWN;
+        long remainingCooldown = lastSleepTime + sleepCooldown - currentTime;
+        
+        if (remainingCooldown > 0) {
+            // Show cooldown popup
+            CommandCooldownPopup.showCooldownWarning(this, "Sleep", remainingCooldown, sleepCooldown);
+            return;
+        }
+        
+        if (game.goToBed()) {
             System.out.println("Pet is now sleeping!");
-            // You could add animation or sound effects here
         }
     }
      
     private void playActionPerformed(java.awt.event.ActionEvent evt) {
         // Play with pet to increase happiness
         game.checkState();
-        if(isActionAllowed("Play") && game.play()){
+        
+        // Check if action is allowed
+        if (!isActionAllowed("Play")) {
+            return;
+        }
+        
+        // Check cooldown
+        long currentTime = System.currentTimeMillis();
+        long lastPlayTime = game.getLastPlayTime();
+        long playCooldown = Game.PLAY_COOLDOWN;
+        long remainingCooldown = lastPlayTime + playCooldown - currentTime;
+        
+        if (remainingCooldown > 0) {
+            // Show cooldown popup
+            CommandCooldownPopup.showCooldownWarning(this, "Play", remainingCooldown, playCooldown);
+            return;
+        }
+        
+        if (game.play()) {
             // Successfully played with pet
             System.out.println("Playing with pet!");
-            // You could add animation or sound effects here
         }
     }
      
@@ -630,30 +699,64 @@
         System.out.println("Gift button pressed" + currentImageIndexGift);
         
         game.checkState();
-        if(isActionAllowed("Give Gift") && game.giveGift(inventoryIndex)){
+        
+        // Check if action is allowed
+        if (!isActionAllowed("Give Gift")) {
+            return;
+        }
+        
+        // Check cooldown
+        long currentTime = System.currentTimeMillis();
+        long lastGiftTime = game.getLastGiftTime();
+        long giftCooldown = Game.GIFT_COOLDOWN;
+        long remainingCooldown = lastGiftTime + giftCooldown - currentTime;
+        
+        if (remainingCooldown > 0) {
+            // Show cooldown popup
+            CommandCooldownPopup.showCooldownWarning(this, "Give Gift", remainingCooldown, giftCooldown);
+            return;
+        }
+        
+        if (game.giveGift(inventoryIndex)) {
             // Successfully gave gift to pet
             System.out.println("Gave a gift to the pet!");
             // Update the inventory count display after giving a gift
             updateButtonLabels();
-            // You could add animation or sound effects here
         }
     }
-     
-    private void feedActionPerformed(java.awt.event.ActionEvent evt) {
-        // Feed pet to increase hunger stat
-        // Different foods might have different effects based on the selected food type
-        String foodType = button12Images[currentImageIndexFood];
-        System.out.println("Feeding: " + foodType);
-        
-        game.checkState();
-        if(isActionAllowed("Feed") && game.feed(currentImageIndexFood)) {
-            // Successfully fed the pet
-            System.out.println("Fed the pet!");
-            // Update the inventory count display after feeding
-            updateButtonLabels();
-            // The Game class will handle refreshing the UI
-        }
-    }
+    
+   private void feedActionPerformed(java.awt.event.ActionEvent evt) {
+         // Feed pet to increase hunger stat
+         // Different foods might have different effects based on the selected food type
+         String foodType = button12Images[currentImageIndexFood];
+         System.out.println("Feeding: " + foodType);
+         
+         game.checkState();
+         
+         // Check if action is allowed
+         if (!isActionAllowed("Feed")) {
+             return;
+         }
+         
+         // Check cooldown
+         long currentTime = System.currentTimeMillis();
+         long lastFeedTime = game.getLastFeedTime();
+         long feedCooldown = Game.FEED_COOLDOWN;
+         long remainingCooldown = lastFeedTime + feedCooldown - currentTime;
+         
+         if (remainingCooldown > 0) {
+             // Show cooldown popup
+             CommandCooldownPopup.showCooldownWarning(this, "Feed", remainingCooldown, feedCooldown);
+             return;
+         }
+         
+         if (game.feed(currentImageIndexFood)) {
+             // Successfully fed the pet
+             System.out.println("Fed the pet!");
+             // Update the inventory count display after feeding
+             updateButtonLabels();
+         }
+     }  
      
      private void nextGiftActionPerformed(java.awt.event.ActionEvent evt) {
          // Cycle to next gift image
@@ -679,7 +782,7 @@
          updateButtonLabels();
      }
 
-      /**
+    /**
      * Checks if an action is allowed based on the pet's current state
      * @param action The action to be performed
      * @return true if the action is allowed, false otherwise
