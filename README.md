@@ -36,7 +36,7 @@ Key features:
 - **Java Swing and AWT** (included in JDK)
 - No additional third-party libraries are required
 
-## Step-by-Step Build Guide
+## Build Guide for Compiling it from Source Code
 
 ### 1. Install Java Development Kit (JDK)
 
