@@ -34,6 +34,7 @@ public class Game {
         this.inventory = new Inventory("defaultType", 0.0);
     }
     
+    
     /**
      * Decrements pet stats over time
      */

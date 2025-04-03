@@ -34,7 +34,7 @@ import javax.swing.JFrame;
  
  /**
   *
-  * @author Jacob
+  * @author Omar and Ahmed
   */
   public class mainGame extends javax.swing.JFrame {
     public Game game;
