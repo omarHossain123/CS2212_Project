@@ -579,109 +579,81 @@
      }
      
      private void takeToVetActionPerformed(java.awt.event.ActionEvent evt) {
-         // Take pet to vet to increase health
-         game.checkState();
-         if(game.validState() && game.takeToVet()){
-             // Successfully took pet to vet
-             System.out.println("Pet has been treated by the vet!");
-             // You could add animation or sound effects here
-         }
-         else{
-             // On cooldown or other failure
-             System.out.println("Cannot take pet to vet right now. Try again later.");
-         }
-     }
+        // Take pet to vet to increase health
+        game.checkState();
+        if(isActionAllowed("Visit Vet") && game.takeToVet()){
+            // Successfully took pet to vet
+            System.out.println("Pet has been treated by the vet!");
+            // You could add animation or sound effects here
+        }
+    }
      
-     private void walkPetActionPerformed(java.awt.event.ActionEvent evt) {
-         // Take pet for a walk to improve health and happiness
-         game.checkState();
-         if( (game.validState() || game.getPet().getState() == "angry") && game.walk()){
-             // Successfully walked pet
-             System.out.println(game.validState());
-             System.out.println(game.getPet().getState() == "angry");
-             System.out.println("Took pet for a walk!");
-             // You could add animation or sound effects here
-         }
-         else{
-             // On cooldown or other failure
-             System.out.println("Cannot walk pet right now. Try again later.");
-         }
-     }
+    private void walkPetActionPerformed(java.awt.event.ActionEvent evt) {
+        // Take pet for a walk to improve health and happiness
+        game.checkState();
+        if(isActionAllowed("Walk") && game.walk()){
+            // Successfully walked pet
+            System.out.println("Took pet for a walk!");
+        }
+    }
      
-     private void sleepActionPerformed(java.awt.event.ActionEvent evt) {
-         // Put pet to sleep to restore sleep stat
-         System.out.println("Sleep button pressed");
-         game.checkState();
-         if(game.validState() && game.goToBed()){
-             System.out.println("Pet is now sleeping!");
-             // You could add animation or sound effects here
-         }
-         else{
-             System.out.println("Pet cannot sleep right now. Try again later.");
-         }
-     }
+    private void sleepActionPerformed(java.awt.event.ActionEvent evt) {
+        // Put pet to sleep to restore sleep stat
+        System.out.println("Sleep button pressed");
+        game.checkState();
+        if(isActionAllowed("Sleep") && game.goToBed()){
+            System.out.println("Pet is now sleeping!");
+            // You could add animation or sound effects here
+        }
+    }
      
-     private void playActionPerformed(java.awt.event.ActionEvent evt) {
-         // Play with pet to increase happiness
-         game.checkState();
-         if( (game.validState() || game.getPet().getState() == "angry") && game.play()){
-             // Successfully played with pet
-             System.out.println("Playing with pet!");
-             System.out.println(game.validState());
-             System.out.println(game.getPet().getState() == "angry");
-             // You could add animation or sound effects here
-         }
-         else{
-             // On cooldown or other failure
-             System.out.println("Cannot play with pet right now. Try again later.");
-         }
-     }
+    private void playActionPerformed(java.awt.event.ActionEvent evt) {
+        // Play with pet to increase happiness
+        game.checkState();
+        if(isActionAllowed("Play") && game.play()){
+            // Successfully played with pet
+            System.out.println("Playing with pet!");
+            // You could add animation or sound effects here
+        }
+    }
      
-     private void giveGiftActionPerformed(java.awt.event.ActionEvent evt) {
-         // Give gift to pet to increase happiness
-         // Different gifts might have different effects based on the selected gift type
-         int temp = currentImageIndexGift- 2;
-         if(temp < 0) {
-             temp *= -1;
-         }
-         int inventoryIndex = temp + 3;
-         String giftType = button11Images[currentImageIndexGift];
-         System.out.println("Giving gift: " + giftType);
-         System.out.println("Gift button pressed" + currentImageIndexGift);
-         
-         game.checkState();
-         if((game.validState() || game.getPet().getState() == "angry") && game.giveGift(inventoryIndex) ){
-             // Successfully gave gift to pet
-             System.out.println("Gave a gift to the pet!");
-             // Update the inventory count display after giving a gift
-             updateButtonLabels();
-             // You could add animation or sound effects here
-         }
-         else{
-             // On cooldown or other failure
-             System.out.println("Cannot give gift right now. Try again later.");
-         }
-     }
+    private void giveGiftActionPerformed(java.awt.event.ActionEvent evt) {
+        // Give gift to pet to increase happiness
+        // Different gifts might have different effects based on the selected gift type
+        int temp = currentImageIndexGift- 2;
+        if(temp < 0) {
+            temp *= -1;
+        }
+        int inventoryIndex = temp + 3;
+        String giftType = button11Images[currentImageIndexGift];
+        System.out.println("Giving gift: " + giftType);
+        System.out.println("Gift button pressed" + currentImageIndexGift);
+        
+        game.checkState();
+        if(isActionAllowed("Give Gift") && game.giveGift(inventoryIndex)){
+            // Successfully gave gift to pet
+            System.out.println("Gave a gift to the pet!");
+            // Update the inventory count display after giving a gift
+            updateButtonLabels();
+            // You could add animation or sound effects here
+        }
+    }
      
-     private void feedActionPerformed(java.awt.event.ActionEvent evt) {
-         // Feed pet to increase hunger stat
-         // Different foods might have different effects based on the selected food type
-         String foodType = button12Images[currentImageIndexFood];
-         System.out.println("Feeding: " + foodType);
-         
-         game.checkState();
-         if((game.validState() || game.getPet().getState() == "angry") && game.feed(currentImageIndexFood)) {
-             // Successfully fed the pet
-             System.out.println("Fed the pet!");
-             // Update the inventory count display after feeding
-             updateButtonLabels();
-             // The Game class will handle refreshing the UI
-         }
-         else{
-             // On cooldown or other failure
-             System.out.println("Cannot feed pet right now. Try again later.");
-         }
-     }
+    private void feedActionPerformed(java.awt.event.ActionEvent evt) {
+        // Feed pet to increase hunger stat
+        // Different foods might have different effects based on the selected food type
+        String foodType = button12Images[currentImageIndexFood];
+        System.out.println("Feeding: " + foodType);
+        
+        game.checkState();
+        if(isActionAllowed("Feed") && game.feed(currentImageIndexFood)) {
+            // Successfully fed the pet
+            System.out.println("Fed the pet!");
+            // Update the inventory count display after feeding
+            updateButtonLabels();
+            // The Game class will handle refreshing the UI
+        }
+    }
      
      private void nextGiftActionPerformed(java.awt.event.ActionEvent evt) {
          // Cycle to next gift image
@@ -706,4 +678,48 @@
          currentImageIndexFood = (currentImageIndexFood + 1) % button12Images.length;
          updateButtonLabels();
      }
+
+      /**
+     * Checks if an action is allowed based on the pet's current state
+     * @param action The action to be performed
+     * @return true if the action is allowed, false otherwise
+     */
+    private boolean isActionAllowed(String action) {
+        String petState = game.getPet().getState();
+        
+        // Precedence order: Dead, Sleeping, Angry, Hungry, Normal
+        switch (petState) {
+            case "dead":
+                // No actions allowed in dead state
+                CommandRestrictionPopup.showRestrictionWarning(this, "Dead", action);
+                return false;
+            
+            case "sleep":
+                // No actions allowed in sleep state
+                CommandRestrictionPopup.showRestrictionWarning(this, "Sleeping", action);
+                return false;
+            
+            case "angry":
+                // Only gift and play allowed in angry state
+                if (!action.equals("Give Gift") && !action.equals("Play")) {
+                    CommandRestrictionPopup.showRestrictionWarning(this, "Angry", action);
+                    return false;
+                }
+                return true;
+            
+            case "hungry":
+                // All actions allowed in hungry state
+                return true;
+            
+            case "default":
+                // All actions allowed in normal state
+                return true;
+            
+            default:
+                // For any other unknown state, restrict actions
+                CommandRestrictionPopup.showRestrictionWarning(this, petState, action);
+                return false;
+        }
+    }
+
  }
