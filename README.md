@@ -17,12 +17,23 @@ The Virtual Pet Application is a modern implementation of the classic virtual pe
 Key features:
 
 - Multiple pet types with unique attributes (Debatchi, Kikitchi, Mametchi, Tsuyopitchi)
-- Real-time state management
+- Real-time stat management
 - Pet emotion system that responds to care
 - Inventory and shop system
 - Comprehensive save/load functionality
 - Parental controls for limiting play time and reviving a dead pet
 - Interactive actions (feeding, playing, walking, vet visits, etc.)
+
+## Submission Structure
+
+Our submission is organized as follows:
+
+- **Repository/** - Contains all source code files (.java) and resources
+  - The assets/ folder with all game images and resources
+  - All Java source files
+- **Executable/** - Contains the compiled version of our application
+  - All compiled .class files
+  - A copy of the assets/ folder required to run the game
 
 ## Required Libraries and Tools
 
@@ -36,7 +47,9 @@ Key features:
 - **Java Swing and AWT** (included in JDK)
 - No additional third-party libraries are required
 
-## Build Guide for Compiling it from Source Code
+## Building from Source
+
+If you wish to build the application from source rather than using the provided compiled version:
 
 ### 1. Install Java Development Kit (JDK)
 
@@ -44,69 +57,54 @@ Key features:
 2. Select the Windows x64 Installer option
 3. Run the downloaded installer and follow the prompts
 4. Accept the default installation locations
-5. Wait for the installation to complete
-6. Verify installation by opening Command Prompt and typing:
+5. Verify installation by opening Command Prompt and typing:
    ```
    java -version
    ```
-   You should see version information for your installed JDK
 
-### 2. Download and Extract the Source Code
-
-1. Unzip the project files to a folder of your choice (e.g., C:\VirtualPet)
-2. The folder structure should include:
-   - group15/ (contains all Java source files)
-   - group15/assets/ (contains images and other resources)
-   - group15/saves (contains all save files made, should be empty when starting)
-
-### 4. Compile the Source Code
-
-#### Using Command Prompt:
+### 2. Compile the Source Code
 
 1. Open Command Prompt
-2. Navigate to the project directory:
+2. Navigate to the Repository directory:
    ```
-   cd C:\VirtualPet
+   cd [path-to-submission]/Repository
    ```
-3. Create a 'build' directory:
+3. Create a new folder for compilation output:
    ```
    mkdir build
    ```
 4. Compile all Java files:
    ```
-   javac -d build src/*.java
+   javac -d build *.java
    ```
 5. Copy the assets folder to the build directory:
    ```
    xcopy /E /I assets build\assets
    ```
+6. Run the application from the build folder:
+   ```
+   cd build
+   java UserInterface
+   ```
 
-#### Using Visual Studio Code:
+## Running the Pre-compiled Application
 
-1. Open VS Code
-2. Select "File" > "Open Folder" and choose the project directory
-3. Install the "Extension Pack for Java" if not already installed
-4. Open the Explorer view (Ctrl+Shift+E)
-5. Right-click on the src folder and select "Build Java"
-
-## Running the Application
-
-### Running from Command Line:
+To run the already compiled version provided in the submission:
 
 1. Open Command Prompt
-2. Navigate to the build directory:
+2. Navigate to the Executable directory:
    ```
-   cd C:\VirtualPet\build
+   cd [path-to-submission]/Executable
    ```
-3. Run the application:
+3. Run the application by typing the command:
    ```
    java UserInterface
    ```
 
-### Running from Visual Studio Code:
+## Alternatively, you can
 
 1. Open the project in VS Code
-2. Navigate to the UserInterface.java file
+2. Navigate to the UserInterface.java file,
 3. Click the "Run" button (triangle icon) in the upper right
 4. Select "Run Java"
 
@@ -192,7 +190,7 @@ The game includes a parental control system to limit play time:
    - View play statistics
    - Revive a dead pet from specific save files
 
-## Additional Information
+### Additional Information
 
 - The game automatically saves statistics on exit
 - Pet emotions and animations change based on their state and your interactions
