@@ -4,8 +4,6 @@
  */
 
 
- import java.awt.Image;
- import java.awt.Font;
  import java.awt.event.ActionEvent;
  import java.awt.event.ActionListener;
  import java.awt.event.KeyEvent;
@@ -15,24 +13,11 @@
  import java.awt.event.ComponentEvent;
  import java.util.logging.Level;
  import java.util.logging.Logger;
- import javax.swing.AbstractAction;
- import javax.swing.Action;
- import javax.swing.ActionMap;
- import javax.swing.ImageIcon;
- import javax.swing.InputMap;
- import javax.swing.JButton;
- import javax.swing.JComponent;
- import javax.swing.JProgressBar;
- import javax.swing.KeyStroke;
- import javax.swing.SwingUtilities;
- import javax.swing.Timer;
- import java.awt.Dimension;
- import java.awt.GraphicsDevice;
- import java.awt.GraphicsEnvironment;
-import javax.swing.JFrame;
-  
+ import javax.swing.*;
+ import java.awt.*;
  
- /**
+
+/**
   *
   * @author Omar and Ahmed
   */
@@ -134,21 +119,14 @@ import javax.swing.JFrame;
             // Store initial state and emotion for comparison
             String oldState = game.getPet().getState();
             String oldEmotion = game.getPet().getEmotion();
-
+    
             // Update pet state
             game.changeState();
             String newState = game.checkState();
             
-            // Check if state or emotion changed
-            String newEmotion = game.getPet().getEmotion();
-            boolean stateChanged = !oldState.equals(newState);
-            boolean emotionChanged = !oldEmotion.equals(newEmotion);
-            
-            if (emotionChanged) {
-                System.out.println("REFRESH: Emotion changed from " + oldEmotion + " to " + newEmotion);
-                refreshPetImage(); // Load new image because emotion changed
-            }
-
+            // Check for low stats and show warnings
+            checkLowStatsWrapper();
+    
             // Check for death state
             if (game.getPet().getState().equals("dead")) {
                 // Stop the timer and show game over message
@@ -169,7 +147,7 @@ import javax.swing.JFrame;
             updateProgressBars();
             
             // If state changed, ensure the image is updated
-            if (stateChanged) {
+            if (!oldState.equals(newState)) {
                 refreshPetImage();
             }
             
@@ -873,7 +851,38 @@ import javax.swing.JFrame;
         idleTimer.setRepeats(true);
         idleTimer.start();
     }
- 
+
+    private void checkLowStatsWrapper() {
+        Pet pet = game.getPet();
+        
+        // Don't show warnings if pet is in a special state
+        if (!pet.getState().equals("default") && !pet.getState().equals("hungry")) {
+            return;
+        }
+        
+        // Get the warning singleton instance
+        LowStatWarning warningSystem = LowStatWarning.getInstance();
+        
+        // Check sleep stat
+        if (pet.getSleep() / pet.getMaxSleep() * 100 < 25) {
+            warningSystem.showWarning(this, "Sleep", pet.getSleep(), pet.getMaxSleep());
+        }
+        
+        // Check hunger stat
+        if (pet.getHunger() / pet.getMaxHunger() * 100 < 25) {
+            warningSystem.showWarning(this, "Hunger", pet.getHunger(), pet.getMaxHunger());
+        }
+        
+        // Check happiness stat
+        if (pet.getHappiness() / pet.getMaxHappiness() * 100 < 25) {
+            warningSystem.showWarning(this, "Happiness", pet.getHappiness(), pet.getMaxHappiness());
+        }
+        
+        // Check health stat
+        if (pet.getHealth() / pet.getMaxHealth() * 100 < 25) {
+            warningSystem.showWarning(this, "Health", pet.getHealth(), pet.getMaxHealth());
+        }
+    }
    
      // Variables declaration - do not modify//GEN-BEGIN:variables
      private javax.swing.JButton commands;
