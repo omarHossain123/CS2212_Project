@@ -34,6 +34,9 @@ Our submission is organized as follows:
 - **Executable/** - Contains the compiled version of our application
   - All compiled .class files
   - A copy of the assets/ folder required to run the game
+- **Javadoc/** - Contains generated JavaDoc documentation
+  - HTML documentation of classes and methods
+  - Documentation index and navigation files
 
 ## Required Libraries and Tools
 
