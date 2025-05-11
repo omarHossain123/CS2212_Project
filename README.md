@@ -200,3 +200,5 @@ The game includes a parental control system to limit play time:
 - Different pets have different base stats and respond differently to care
 - The fourth pet (Tsuyopitchi) has special characteristics for more experienced players
 - Background scenes change depending on the activity (like visiting the vet)
+
+You can watch our Demo Video here: https://www.youtube.com/watch?v=4m_SRm0ApqM
